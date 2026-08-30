@@ -474,10 +474,25 @@ class DataToResultScreen extends StatelessWidget {
   DataToResultScreen({required this.resultScreenData});
 
   Widget build(BuildContext context) {
-    return Text(
-      "This Screen will display Gennt Chart for ${resultScreenData.algoString} on chosen ${resultScreenData.genntData.length} processes",
+    return ListView.builder(
+      itemCount: resultScreenData.genntData.length,
+      itemBuilder: (context, index) {
+        return Card(
+          child: ListTile(
+            title: Text("P-${resultScreenData.genntData[index].processId}"),
+            subtitle: Column(
+              children: [
+                Text("AT : ${resultScreenData.genntData[index].arrivalTime}"),
+                Text("BT : ${resultScreenData.genntData[index].burstTime}"),
+              ],
+            ),
+          ),
+        );
+      },
     );
-    //ListView.builder( itemCount : resultScreenData.genntData.length );
+    /*Text(
+      "This Screen will display Gennt Chart for ${resultScreenData.algoString} on chosen ${resultScreenData.genntData.length} processes",
+    );*/
   }
 }
 
