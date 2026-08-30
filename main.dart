@@ -77,13 +77,15 @@ class _InputScreenState extends State<InputScreen> {
                 )
               : SelectionScreen(
                   selectionScreenData: savedSelectionScreenData,
-                  funcToUpdateAlgoString : updateAlgoString,
+                  funcToUpdateAlgoString: updateAlgoString,
                   loadNextScreen: loadResultScreen,
                 )));
   }
-  
-  void updateAlgoString( String chosenAlgo ){
-    setState( (){ savedSelectionScreenData.algoString = chosenAlgo ; } );
+
+  void updateAlgoString(String chosenAlgo) {
+    setState(() {
+      savedSelectionScreenData.algoString = chosenAlgo;
+    });
   }
 
   void loadNumScreen() {
@@ -270,8 +272,11 @@ class DataScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               //Text( dataScreenData.defaulTextContent ),
-              Text( "Current count of processes =  ${ dataScreenData.processData.length }" ),
-              //DataToDataScreen( processDataList : dataScreenData.processData ),
+              Text(
+                "Current count of processes =  ${dataScreenData.processData.length}",
+              ),
+              //DataToDataScreen(dataScreenData: dataScreenData),
+              //ProcessCard( index : 13 ),
               ElevatedButton(
                 child: SizedBox(
                   width: 100,
@@ -290,6 +295,7 @@ class DataScreen extends StatelessWidget {
                   */
                 },
               ),
+              //ProcessCard( index : 13 ),
             ],
           ),
         ],
@@ -300,13 +306,13 @@ class DataScreen extends StatelessWidget {
 
 class SelectionScreen extends StatelessWidget {
   final SelectionScreenData selectionScreenData;
-final void Function(String) funcToUpdateAlgoString;
+  final void Function(String) funcToUpdateAlgoString;
   final void Function() loadNextScreen;
 
   SelectionScreen({
     required this.loadNextScreen,
     required this.selectionScreenData,
-    required this.funcToUpdateAlgoString
+    required this.funcToUpdateAlgoString,
   });
 
   Widget build(BuildContext context) {
@@ -319,7 +325,9 @@ final void Function(String) funcToUpdateAlgoString;
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               //Text(selectionScreenData.defaulTextContent),
-              SelectionScreenDropDown( funcToUpdateAlgoString : funcToUpdateAlgoString ),
+              SelectionScreenDropDown(
+                funcToUpdateAlgoString: funcToUpdateAlgoString,
+              ),
               ElevatedButton(
                 child: SizedBox(
                   width: 100,
@@ -329,7 +337,6 @@ final void Function(String) funcToUpdateAlgoString;
                   ),
                 ),
                 onPressed: () {
-                   
                   loadNextScreen();
                   /*
                   Navigator.push(
@@ -347,35 +354,46 @@ final void Function(String) funcToUpdateAlgoString;
   }
 }
 
-class SelectionScreenDropDown extends StatefulWidget{
+class SelectionScreenDropDown extends StatefulWidget {
   final void Function(String) funcToUpdateAlgoString;
-  
-  SelectionScreenDropDown( { required this.funcToUpdateAlgoString } );
-  
-  State<SelectionScreenDropDown> createState() => _SelectionScreenDropDownState() ;
+
+  SelectionScreenDropDown({required this.funcToUpdateAlgoString});
+
+  State<SelectionScreenDropDown> createState() =>
+      _SelectionScreenDropDownState();
 }
 
-class _SelectionScreenDropDownState extends State<SelectionScreenDropDown>{
-  
-
-  List<String> availableAlgo = [ "FCFS", "SJF", "SRTF", "LJF", "HRRN", "RoundRobin( QT = 2 )" ] ;
-  //String defaultValue = "choose an Algorithm" ;  
+class _SelectionScreenDropDownState extends State<SelectionScreenDropDown> {
+  List<String> availableAlgo = [
+    "FCFS",
+    "SJF",
+    "SRTF",
+    "LJF",
+    "HRRN",
+    "RoundRobin( QT = 2 )",
+  ];
+  //String defaultValue = "choose an Algorithm" ;
   //String chosenValue = "" ;
   //String chosenValue = "choose an Algorithm" ;
-  String chosenValue = "FCFS" ;
-  
-  Widget build( BuildContext context ){
-      return DropdownMenu<String>(
+  String chosenValue = "FCFS";
+
+  Widget build(BuildContext context) {
+    return DropdownMenu<String>(
       initialSelection: availableAlgo.first,
       onSelected: (String? value) {
         // This is called when the user selects an item.
         setState(() {
           chosenValue = value!;
         });
-        widget.funcToUpdateAlgoString( value! ) ;
+        widget.funcToUpdateAlgoString(value!);
       },
-      dropdownMenuEntries: availableAlgo.map( ( String option ) => DropdownMenuEntry<String>( value : option, label : option )  ).toList( ) ,
-    );    
+      dropdownMenuEntries: availableAlgo
+          .map(
+            (String option) =>
+                DropdownMenuEntry<String>(value: option, label: option),
+          )
+          .toList(),
+    );
     /*return DropdownButton<String>( 
       value : chosenValue,
       icon: const Icon(Icons.arrow_downward),
@@ -386,9 +404,7 @@ class _SelectionScreenDropDownState extends State<SelectionScreenDropDown>{
       }).toList(),  );
   }
   */
-    
-   
-}
+  }
 }
 
 class ResultScreen extends StatelessWidget {
@@ -433,6 +449,18 @@ class ResultScreen extends StatelessWidget {
   }
 }
 
+class ProcessCard extends StatelessWidget{
+  
+  final int index;
+  ProcessCard({ required this.index });
+  
+  Widget build( BuildContext context ){
+    return Card( child : ListTile( title : Text("P-${index}") )  );
+  }
+  
+}
+
+/*
 class ProcessCard extends StatefulWidget {
   final ProcessData processData;
   ProcessCard({required this.processData});
@@ -481,7 +509,9 @@ class _ProcessCardState extends State<ProcessCard> {
     });
   }
 }
+*/
 
+/*
 class SliderContainer extends StatelessWidget {
   final int currValue;
   final void Function(int) funcToUpdateCurrValue;
@@ -490,23 +520,52 @@ class SliderContainer extends StatelessWidget {
     required this.currValue,
     required this.funcToUpdateCurrValue,
   });
-  
-  Widget build( BuildContext context ){
-    return Card( child : Column( children : [ Text( "Value ${ currValue }" ), Slider( max : 10, divisions : 10,  value : 1.0 * currValue, onChanged : ( sliderValue ){ funcToUpdateCurrValue( sliderValue.ceil() ); } ) ] ) );
-  }
-  
-}
-
-class DataToDataScreen extends StatelessWidget {
-  final List<ProcessData> processDataList;
-  DataToDataScreen({required this.processDataList});
 
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemBuilder: (context, index) {
-        return ProcessCard(processData: processDataList[index]);
-      },
+    return Card(
+      child: Column(
+        children: [
+          Text("Value ${currValue}"),
+          Slider(
+            max: 10,
+            divisions: 10,
+            value: 1.0 * currValue,
+            onChanged: (sliderValue) {
+              funcToUpdateCurrValue(sliderValue.ceil());
+            },
+          ),
+        ],
+      ),
     );
+  }
+}
+*/
+  
+class DataToDataScreen extends StatelessWidget {
+  final DataScreenData dataScreenData;
+  //final List<ProcessData>? processDataList;
+  DataToDataScreen({
+    required this.dataScreenData /*required this.processDataList*/,
+  });
+
+  Widget build(BuildContext context) {
+    List<ProcessData> processDataList = dataScreenData.processData;
+
+    /*if( processDataList == null ){
+      return  Text( "No processes received" );
+    }
+    */
+
+    if (processDataList.isEmpty) {
+      return Text("The list of processes is empty ");
+    } else {
+      return ListView.builder(
+        itemCount : processDataList.length,
+        itemBuilder: (context, index) {
+          return ProcessCard( index : index /*processData: processDataList[index]*/ );
+        },
+      );
+    }
   }
 }
 
@@ -540,9 +599,9 @@ class DataScreenData {
 
   static List<ProcessData> listOfInitProcessData(int chosenCount) {
     List<ProcessData> result = [];
-    for (var x = 0; x < chosenCount; x++) {
-      ProcessData tempInstance = ProcessData.initInstance() ;
-      result.add( tempInstance );
+    for (int x = 0; x < chosenCount; x = x + 1) {
+      ProcessData tempInstance = ProcessData.initInstance();
+      result.add(tempInstance);
     }
 
     return result;
