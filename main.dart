@@ -264,20 +264,7 @@ class DataScreen extends StatelessWidget {
 
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("DataScreen")),
-      body: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              //Text( dataScreenData.defaulTextContent ),
-              Text(
-                "Current count of processes =  ${dataScreenData.processData.length}",
-              ),
-              //DataToDataScreen(dataScreenData: dataScreenData),
-              //ProcessCard( index : 13 ),
-              ElevatedButton(
+      appBar: AppBar(title: Text("DataScreen"), actions : [               ElevatedButton(
                 child: SizedBox(
                   width: 100,
                   child: Row(
@@ -294,12 +281,24 @@ class DataScreen extends StatelessWidget {
                   );
                   */
                 },
+              ) ]),
+      body: //Row(
+        //mainAxisAlignment: MainAxisAlignment.center,
+        //children: [
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              //Text( dataScreenData.defaulTextContent ),
+              Text(
+                "Current count of processes =  ${dataScreenData.processData.length}",
               ),
+              //DataToDataScreen(dataScreenData: dataScreenData),
+              //ProcessCard( index : 13 ),
               //ProcessCard( index : 13 ),
             ],
           ),
-        ],
-      ),
+       // ],
+      //),
     );
   }
 }
