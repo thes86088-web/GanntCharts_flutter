@@ -82,6 +82,7 @@ class _InputScreenState extends State<InputScreen> {
 }
 
 class NumScreen extends StatelessWidget {
+  //final NumScreenData numScreenData ;
   final void Function() loadNextScreen;
 
   NumScreen({required this.loadNextScreen});
@@ -251,4 +252,45 @@ class ResultScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+class NumScreenData {
+  int chosenCount;
+  String defaulTextContent;
+
+  NumScreenData({required this.chosenCount, required this.defaulTextContent});
+}
+
+class DataScreenData {
+  List<ProcessData> processData;
+  String defaulTextContent;
+
+  DataScreenData({required this.processData, required this.defaulTextContent});
+}
+
+class ProcessData {
+  static int processCount = 0;
+
+  final int processId = processCount++;
+  int arrivalTime;
+  int burstTime;
+
+  ProcessData({required this.arrivalTime, required this.burstTime});
+}
+
+class SelectionScreenData {
+  String algoString;
+  String defaulTextContent;
+
+  SelectionScreenData({
+    required this.algoString,
+    required this.defaulTextContent,
+  });
+}
+
+class ResultScreenData {
+  List<ProcessData> genntData;
+  String defaulTextContent;
+
+  ResultScreenData({required this.genntData, required this.defaulTextContent});
 }
