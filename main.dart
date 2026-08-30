@@ -9,7 +9,29 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(debugShowCheckedModeBanner: false, home: NumScreen());
+    return MaterialApp(debugShowCheckedModeBanner: false, home: MainScreen());
+  }
+}
+
+class MainScreen extends StatefulWidget{
+  
+  State<MainScreen> createState() => _MainScreenState();
+}
+
+class _MainScreenState extends State<MainScreen>{
+  
+  String stateString = "default";
+  
+  Widget build( BuildContext context ){
+    return ( stateString == "result-screen" ? ResultScreen(  ) : NumScreen(   )  );
+  }
+  
+  void loadNumScreen(){
+    setState( (){ stateString = "num-screen" ; } );
+  }
+  
+   void loadResultScreen(){
+    setState( (){ stateString = "result-screen" ; } );
   }
 }
 
