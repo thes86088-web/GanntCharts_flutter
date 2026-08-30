@@ -435,6 +435,7 @@ class ResultScreen extends StatelessWidget {
   }
 }
 
+/*
 class ProcessCard extends StatelessWidget{
   
   final int index;
@@ -445,8 +446,9 @@ class ProcessCard extends StatelessWidget{
   }
   
 }
+*/
 
-/*
+
 class ProcessCard extends StatefulWidget {
   final ProcessData processData;
   ProcessCard({required this.processData});
@@ -460,26 +462,28 @@ class _ProcessCardState extends State<ProcessCard> {
 
   Widget build(BuildContext context) {
     return Card(
-      child: Row(
-        children: [
+      child:
           ListTile(
-            title: Text(widget.processData.processId.toString()),
+            leading : IconButton(icon: Icon(Icons.check), onPressed: () {}),
+            title: Text( "P-${widget.processData.processId}" ),
             subtitle: Row(
               children: [
+                Text( "AT Slot" ),
+                Text( "BT Slot" )
+                /*
                 SliderContainer(
                   currValue: tempArrivalTime,
                   funcToUpdateCurrValue: updateArrivalTime,
                 ),
+                
                 SliderContainer(
                   currValue: tempBurstTime,
                   funcToUpdateCurrValue: updateBurstTime,
                 ),
+                */
               ],
             ),
           ),
-          IconButton(icon: Icon(Icons.check), onPressed: () {}),
-        ],
-      ),
     );
   }
 
@@ -495,7 +499,6 @@ class _ProcessCardState extends State<ProcessCard> {
     });
   }
 }
-*/
 
 /*
 class SliderContainer extends StatelessWidget {
@@ -548,7 +551,7 @@ class DataToDataScreen extends StatelessWidget {
       return ListView.builder(
         itemCount : processDataList.length,
         itemBuilder: (context, index) {
-          return ProcessCard( index : index /*processData: processDataList[index]*/ );
+          return ProcessCard( /*index : index*/ processData: processDataList[index] );
         },
       );
     }
