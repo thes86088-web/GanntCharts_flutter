@@ -264,8 +264,9 @@ class DataScreen extends StatelessWidget {
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              //Text(dataScreenData.defaulTextContent),
-              DataToDataScreen( processDataList : dataScreenData.processData ),
+              //Text( dataScreenData.defaulTextContent ),
+              Text( "Current count of processes =  ${ dataScreenData.processData.length }" ),
+              //DataToDataScreen( processDataList : dataScreenData.processData ),
               ElevatedButton(
                 child: SizedBox(
                   width: 100,
@@ -310,7 +311,8 @@ class SelectionScreen extends StatelessWidget {
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(selectionScreenData.defaulTextContent),
+              //Text(selectionScreenData.defaulTextContent),
+              SelectionScreenDropDown(),
               ElevatedButton(
                 child: SizedBox(
                   width: 100,
@@ -335,6 +337,46 @@ class SelectionScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+class SelectionScreenDropDown extends StatefulWidget{
+  
+  State<SelectionScreenDropDown> createState() => _SelectionScreenDropDownState() ;
+}
+
+class _SelectionScreenDropDownState extends State<SelectionScreenDropDown>{
+  
+
+  List<String> availableAlgo = [ "FCFS", "SJF", "SRTF", "LJF", "HRRN", "RoundRobin" ] ;
+  //String defaultValue = "choose an Algorithm" ;  
+  //String chosenValue = "" ;
+  //String chosenValue = "choose an Algorithm" ;
+  String chosenValue = "FCFS" ;
+  
+  Widget build( BuildContext context ){
+      return DropdownMenu<String>(
+      initialSelection: availableAlgo.first,
+      onSelected: (String? value) {
+        // This is called when the user selects an item.
+        setState(() {
+          chosenValue = value!;
+        });
+      },
+      dropdownMenuEntries: availableAlgo.map( ( String option ) => DropdownMenuEntry<String>( value : option, label : option )  ).toList( ) ,
+    );    
+    /*return DropdownButton<String>( 
+      value : chosenValue,
+      icon: const Icon(Icons.arrow_downward),
+      onChanged : ( String? newAlgo ){ setState( (){ chosenValue = newAlgo! /*?? defaultValue*/ ; } ); },
+      
+      items : availableAlgo.map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(value: value, child: Text(value));
+      }).toList(),  );
+  }
+  */
+    
+   
+}
 }
 
 class ResultScreen extends StatelessWidget {
@@ -487,7 +529,8 @@ class DataScreenData {
   static List<ProcessData> listOfInitProcessData(int chosenCount) {
     List<ProcessData> result = [];
     for (var x = 0; x < chosenCount; x++) {
-      result.add(ProcessData.initInstance());
+      ProcessData tempInstance = ProcessData.initInstance() ;
+      result.add( tempInstance );
     }
 
     return result;
