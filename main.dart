@@ -139,7 +139,7 @@ class NumScreen extends StatelessWidget {
               /*Text(numScreenData.defaulTextContent),*/
               DataToNumScreen(
                 funcToUpdateProcessCount: funcToUpdateProcessCount,
-                funcToLoadNextPage : loadNextScreen
+                funcToLoadNextPage: loadNextScreen,
               ),
               /*
               ElevatedButton(
@@ -182,13 +182,14 @@ class DataToNumScreen extends StatelessWidget {
   //final IntWrapper intWrapper = IntWrapper();
 
   DataToNumScreen({
-    required this.funcToUpdateProcessCount, required this.funcToLoadNextPage,
+    required this.funcToUpdateProcessCount,
+    required this.funcToLoadNextPage,
   });
 
   Widget build(BuildContext context) {
     return WidgetToContainSlider(
-      funcToUpdateProcessCount:
-          funcToUpdateProcessCount, funcToLoadNextPage : funcToLoadNextPage ,
+      funcToUpdateProcessCount: funcToUpdateProcessCount,
+      funcToLoadNextPage: funcToLoadNextPage,
     );
   }
 }
@@ -197,11 +198,10 @@ class WidgetToContainSlider extends StatefulWidget {
   final void Function(int) funcToUpdateProcessCount;
   final void Function() funcToLoadNextPage;
 
-  
   WidgetToContainSlider({
-    required this.funcToUpdateProcessCount, required this.funcToLoadNextPage,
+    required this.funcToUpdateProcessCount,
+    required this.funcToLoadNextPage,
   });
-  
 
   State<WidgetToContainSlider> createState() => _WidgetToContainSliderState();
 }
@@ -210,22 +210,27 @@ class _WidgetToContainSliderState extends State<WidgetToContainSlider> {
   int tempValue = 0;
 
   Widget build(BuildContext context) {
-    return Column( children :  [Row(
-      mainAxisAlignment : MainAxisAlignment.center,
+    return Column(
       children: [
-        Text( tempValue.toString() ),
-        Slider(
-          max: 10,
-          divisions: 10,
-          value: 1.0 * tempValue,
-          onChanged: (sliderValue) {
-            //int newValue = sliderValue.ceil();
-            //tempValue = newValue;
-            setState((){tempValue = sliderValue.floor() ;}) ;
-          },
-        ),        
-      ],
-    ),         ElevatedButton(
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(tempValue.toString()),
+            Slider(
+              max: 10,
+              divisions: 10,
+              value: 1.0 * tempValue,
+              onChanged: (sliderValue) {
+                //int newValue = sliderValue.ceil();
+                //tempValue = newValue;
+                setState(() {
+                  tempValue = sliderValue.floor();
+                });
+              },
+            ),
+          ],
+        ),
+        ElevatedButton(
           child: Icon(Icons.check),
 
           onPressed: () {
@@ -238,7 +243,9 @@ class _WidgetToContainSliderState extends State<WidgetToContainSlider> {
                   );
                   */
           },
-        )]);
+        ),
+      ],
+    );
   }
 }
 
@@ -257,7 +264,8 @@ class DataScreen extends StatelessWidget {
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(dataScreenData.defaulTextContent),
+              //Text(dataScreenData.defaulTextContent),
+              DataToDataScreen( processDataList : dataScreenData.processData ),
               ElevatedButton(
                 child: SizedBox(
                   width: 100,
@@ -367,6 +375,83 @@ class ResultScreen extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class ProcessCard extends StatefulWidget {
+  final ProcessData processData;
+  ProcessCard({required this.processData});
+
+  State<ProcessCard> createState() => _ProcessCardState();
+}
+
+class _ProcessCardState extends State<ProcessCard> {
+  int tempArrivalTime = 0;
+  int tempBurstTime = 0;
+
+  Widget build(BuildContext context) {
+    return Card(
+      child: Row(
+        children: [
+          ListTile(
+            title: Text(widget.processData.processId.toString()),
+            subtitle: Row(
+              children: [
+                SliderContainer(
+                  currValue: tempArrivalTime,
+                  funcToUpdateCurrValue: updateArrivalTime,
+                ),
+                SliderContainer(
+                  currValue: tempBurstTime,
+                  funcToUpdateCurrValue: updateBurstTime,
+                ),
+              ],
+            ),
+          ),
+          IconButton(icon: Icon(Icons.check), onPressed: () {}),
+        ],
+      ),
+    );
+  }
+
+  void updateArrivalTime(int newAT) {
+    setState(() {
+      tempArrivalTime = newAT;
+    });
+  }
+
+  void updateBurstTime(int newBT) {
+    setState(() {
+      tempArrivalTime = newBT;
+    });
+  }
+}
+
+class SliderContainer extends StatelessWidget {
+  final int currValue;
+  final void Function(int) funcToUpdateCurrValue;
+
+  SliderContainer({
+    required this.currValue,
+    required this.funcToUpdateCurrValue,
+  });
+  
+  Widget build( BuildContext context ){
+    return Card( child : Column( children : [ Text( "Value ${ currValue }" ), Slider( max : 10, divisions : 10,  value : 1.0 * currValue, onChanged : ( sliderValue ){ funcToUpdateCurrValue( sliderValue.ceil() ); } ) ] ) );
+  }
+  
+}
+
+class DataToDataScreen extends StatelessWidget {
+  final List<ProcessData> processDataList;
+  DataToDataScreen({required this.processDataList});
+
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemBuilder: (context, index) {
+        return ProcessCard(processData: processDataList[index]);
+      },
     );
   }
 }
