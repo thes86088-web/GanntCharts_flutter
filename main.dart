@@ -22,7 +22,7 @@ class _MainScreenState extends State<MainScreen> {
 
   Widget build(BuildContext context) {
     return (stateString == "result-screen"
-        ? ResultScreen(loadNextScreen: loadInputScreen)
+        ? ResultScreen( resultScreenData : ResultScreenData.initInstance(), loadNextScreen: loadInputScreen)
         : InputScreen(functionToLoadResultScreen: loadResultScreen));
   }
 
@@ -52,10 +52,10 @@ class _InputScreenState extends State<InputScreen> {
 
   Widget build(BuildContext context) {
     return (stateString == "num-screen"
-        ? NumScreen(loadNextScreen: loadDataScreen)
+        ? NumScreen( numScreenData : NumScreenData.initInstance(),  loadNextScreen: loadDataScreen)
         : (stateString == "data-screen"
-              ? DataScreen(loadNextScreen: loadSelectionScreen)
-              : SelectionScreen(loadNextScreen: loadResultScreen)));
+              ? DataScreen( dataScreenData :  DataScreenData.initInstance() , loadNextScreen: loadSelectionScreen)
+              : SelectionScreen( selectionScreenData :  SelectionScreenData.initInstance(),  loadNextScreen: loadResultScreen)));
   }
 
   void loadNumScreen() {
@@ -82,10 +82,10 @@ class _InputScreenState extends State<InputScreen> {
 }
 
 class NumScreen extends StatelessWidget {
-  //final NumScreenData numScreenData ;
+  final NumScreenData numScreenData ;
   final void Function() loadNextScreen;
 
-  NumScreen({required this.loadNextScreen});
+  NumScreen({required this.loadNextScreen, required this.numScreenData});
 
   Widget build(BuildContext context) {
     return Scaffold(
@@ -97,7 +97,7 @@ class NumScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                "This Screen contains a slider for choosing the number of processes",
+                numScreenData.defaulTextContent,
               ),
               ElevatedButton(
                 child: SizedBox(
@@ -126,9 +126,10 @@ class NumScreen extends StatelessWidget {
 }
 
 class DataScreen extends StatelessWidget {
+  final DataScreenData dataScreenData ;
   final void Function() loadNextScreen;
 
-  DataScreen({required this.loadNextScreen});
+  DataScreen({required this.loadNextScreen, required this.dataScreenData});
 
   Widget build(BuildContext context) {
     return Scaffold(
@@ -140,7 +141,7 @@ class DataScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                "This Screen contains sliders for choosing AT and BT of chosen processes",
+               dataScreenData.defaulTextContent,
               ),
               ElevatedButton(
                 child: SizedBox(
@@ -169,9 +170,10 @@ class DataScreen extends StatelessWidget {
 }
 
 class SelectionScreen extends StatelessWidget {
+  final SelectionScreenData selectionScreenData ;
   final void Function() loadNextScreen;
 
-  SelectionScreen({required this.loadNextScreen});
+  SelectionScreen({required this.loadNextScreen, required this.selectionScreenData});
 
   Widget build(BuildContext context) {
     return Scaffold(
@@ -183,7 +185,7 @@ class SelectionScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                "This Screen contains dropdowns for selection of scheduling algorithm",
+                selectionScreenData.defaulTextContent,
               ),
               ElevatedButton(
                 child: SizedBox(
@@ -212,9 +214,10 @@ class SelectionScreen extends StatelessWidget {
 }
 
 class ResultScreen extends StatelessWidget {
+  final ResultScreenData resultScreenData ;
   final void Function() loadNextScreen;
 
-  ResultScreen({required this.loadNextScreen});
+  ResultScreen({required this.loadNextScreen, required this.resultScreenData});
 
   Widget build(BuildContext context) {
     return Scaffold(
@@ -226,7 +229,7 @@ class ResultScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                "This Screen contains Gennt chart corresponding to data and algo",
+                resultScreenData.defaulTextContent,
               ),
               ElevatedButton(
                 child: SizedBox(
@@ -259,6 +262,11 @@ class NumScreenData {
   String defaulTextContent;
 
   NumScreenData({required this.chosenCount, required this.defaulTextContent});
+  
+  static NumScreenData initInstance(  ){
+    return NumScreenData( chosenCount : 0 , defaulTextContent : "This Screen contains a slider for choosing the number of processes" ) ;
+  }
+  
 }
 
 class DataScreenData {
@@ -266,6 +274,11 @@ class DataScreenData {
   String defaulTextContent;
 
   DataScreenData({required this.processData, required this.defaulTextContent});
+  
+    static DataScreenData initInstance(  ){
+    return DataScreenData( processData : [ ]  , defaulTextContent : "This Screen contains sliders for choosing AT and BT of chosen processes" ) ;
+  }
+  
 }
 
 class ProcessData {
@@ -286,6 +299,11 @@ class SelectionScreenData {
     required this.algoString,
     required this.defaulTextContent,
   });
+  
+  static SelectionScreenData initInstance(  ){
+    return SelectionScreenData( algoString : "FCFS"  , defaulTextContent : "This Screen contains dropdowns for selection of scheduling algorithm" ) ;
+  }
+  
 }
 
 class ResultScreenData {
@@ -293,4 +311,9 @@ class ResultScreenData {
   String defaulTextContent;
 
   ResultScreenData({required this.genntData, required this.defaulTextContent});
+
+    static ResultScreenData initInstance(  ){
+    return ResultScreenData( genntData : [ ]  , defaulTextContent :"This Screen contains Gennt chart corresponding to data and algo" ) ;
+  }
+  
 }
