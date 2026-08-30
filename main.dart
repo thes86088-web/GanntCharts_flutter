@@ -434,16 +434,7 @@ class ResultScreen extends StatelessWidget {
 
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("ResultScreen")),
-      body: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              DataToResultScreen(resultScreenData: resultScreenData),
-              //Text(resultScreenData.defaulTextContent),
-              ElevatedButton(
+      appBar: AppBar(title: Text("ResultScreen"), actions : [ ElevatedButton(
                 child: SizedBox(
                   width: 100,
                   child: Row(
@@ -460,11 +451,12 @@ class ResultScreen extends StatelessWidget {
                   );
                   */
                 },
-              ),
-            ],
-          ),
-        ],
-      ),
+              ), ]),
+      body:
+          
+              DataToResultScreen(resultScreenData: resultScreenData),
+              //Text(resultScreenData.defaulTextContent),
+              
     );
   }
 }
