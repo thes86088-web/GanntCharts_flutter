@@ -19,11 +19,15 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   String stateString = "default";
+  ResultScreenData savedResultScreenData = ResultScreenData.initInstance();
 
   Widget build(BuildContext context) {
     return (stateString == "result-screen"
-        ? ResultScreen( resultScreenData : ResultScreenData.initInstance(), loadNextScreen: loadInputScreen)
-        : InputScreen(functionToLoadResultScreen: loadResultScreen));
+        ? ResultScreen(
+            resultScreenData: savedResultScreenData,
+            loadNextScreen: loadInputScreen,
+          )
+        : InputScreen(functionToLoadResultScreen: loadResultScreen  /*(){loadResultScreen( receivedGenntData );}*/ ));
   }
 
   void loadInputScreen() {
@@ -32,15 +36,17 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
-  void loadResultScreen() {
+  void loadResultScreen( List<ProcessData> newGenntData, String chosenAlgo ) {
     setState(() {
       stateString = "result-screen";
+      savedResultScreenData.genntData = newGenntData ;
+      savedResultScreenData.algoString = chosenAlgo ;
     });
   }
 }
 
 class InputScreen extends StatefulWidget {
-  final void Function() functionToLoadResultScreen;
+  final void Function( List<ProcessData>, String ) functionToLoadResultScreen;
 
   InputScreen({required this.functionToLoadResultScreen});
 
@@ -49,13 +55,26 @@ class InputScreen extends StatefulWidget {
 
 class _InputScreenState extends State<InputScreen> {
   String stateString = "num-screen";
+  final NumScreenData savedNumScreenData = NumScreenData.initInstance();
+  final DataScreenData savedDataScreenData = DataScreenData.initInstance();
+  final SelectionScreenData savedSelectionScreenData =
+      SelectionScreenData.initInstance();
 
   Widget build(BuildContext context) {
     return (stateString == "num-screen"
-        ? NumScreen( numScreenData : NumScreenData.initInstance(),  loadNextScreen: loadDataScreen)
+        ? NumScreen(
+            numScreenData: savedNumScreenData,
+            loadNextScreen: loadDataScreen,
+          )
         : (stateString == "data-screen"
-              ? DataScreen( dataScreenData :  DataScreenData.initInstance() , loadNextScreen: loadSelectionScreen)
-              : SelectionScreen( selectionScreenData :  SelectionScreenData.initInstance(),  loadNextScreen: loadResultScreen)));
+              ? DataScreen(
+                  dataScreenData: savedDataScreenData,
+                  loadNextScreen: loadSelectionScreen,
+                )
+              : SelectionScreen(
+                  selectionScreenData: savedSelectionScreenData,
+                  loadNextScreen: loadResultScreen,
+                )));
   }
 
   void loadNumScreen() {
@@ -77,12 +96,12 @@ class _InputScreenState extends State<InputScreen> {
   }
 
   void loadResultScreen() {
-    (widget.functionToLoadResultScreen)();
+    (widget.functionToLoadResultScreen)( savedDataScreenData.processData, savedSelectionScreenData.algoString );
   }
 }
 
 class NumScreen extends StatelessWidget {
-  final NumScreenData numScreenData ;
+  final NumScreenData numScreenData;
   final void Function() loadNextScreen;
 
   NumScreen({required this.loadNextScreen, required this.numScreenData});
@@ -96,9 +115,7 @@ class NumScreen extends StatelessWidget {
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                numScreenData.defaulTextContent,
-              ),
+              Text(numScreenData.defaulTextContent),
               ElevatedButton(
                 child: SizedBox(
                   width: 100,
@@ -126,7 +143,7 @@ class NumScreen extends StatelessWidget {
 }
 
 class DataScreen extends StatelessWidget {
-  final DataScreenData dataScreenData ;
+  final DataScreenData dataScreenData;
   final void Function() loadNextScreen;
 
   DataScreen({required this.loadNextScreen, required this.dataScreenData});
@@ -140,9 +157,7 @@ class DataScreen extends StatelessWidget {
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-               dataScreenData.defaulTextContent,
-              ),
+              Text(dataScreenData.defaulTextContent),
               ElevatedButton(
                 child: SizedBox(
                   width: 100,
@@ -170,10 +185,13 @@ class DataScreen extends StatelessWidget {
 }
 
 class SelectionScreen extends StatelessWidget {
-  final SelectionScreenData selectionScreenData ;
+  final SelectionScreenData selectionScreenData;
   final void Function() loadNextScreen;
 
-  SelectionScreen({required this.loadNextScreen, required this.selectionScreenData});
+  SelectionScreen({
+    required this.loadNextScreen,
+    required this.selectionScreenData,
+  });
 
   Widget build(BuildContext context) {
     return Scaffold(
@@ -184,9 +202,7 @@ class SelectionScreen extends StatelessWidget {
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                selectionScreenData.defaulTextContent,
-              ),
+              Text(selectionScreenData.defaulTextContent),
               ElevatedButton(
                 child: SizedBox(
                   width: 100,
@@ -214,7 +230,7 @@ class SelectionScreen extends StatelessWidget {
 }
 
 class ResultScreen extends StatelessWidget {
-  final ResultScreenData resultScreenData ;
+  final ResultScreenData resultScreenData;
   final void Function() loadNextScreen;
 
   ResultScreen({required this.loadNextScreen, required this.resultScreenData});
@@ -228,9 +244,7 @@ class ResultScreen extends StatelessWidget {
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                resultScreenData.defaulTextContent,
-              ),
+              Text(resultScreenData.defaulTextContent),
               ElevatedButton(
                 child: SizedBox(
                   width: 100,
@@ -262,11 +276,14 @@ class NumScreenData {
   String defaulTextContent;
 
   NumScreenData({required this.chosenCount, required this.defaulTextContent});
-  
-  static NumScreenData initInstance(  ){
-    return NumScreenData( chosenCount : 0 , defaulTextContent : "This Screen contains a slider for choosing the number of processes" ) ;
+
+  static NumScreenData initInstance() {
+    return NumScreenData(
+      chosenCount: 0,
+      defaulTextContent:
+          "This Screen contains a slider for choosing the number of processes",
+    );
   }
-  
 }
 
 class DataScreenData {
@@ -274,11 +291,13 @@ class DataScreenData {
   String defaulTextContent;
 
   DataScreenData({required this.processData, required this.defaulTextContent});
-  
-    static DataScreenData initInstance(  ){
-    return DataScreenData( processData : [ ]  , defaulTextContent : "This Screen contains sliders for choosing AT and BT of chosen processes" ) ;
+
+  static DataScreenData initInstance() {
+    return DataScreenData(
+      processData: [],
+      defaulTextContent: "This Screen contains sliders for choosing AT and BT of chosen processes",
+    );
   }
-  
 }
 
 class ProcessData {
@@ -299,21 +318,28 @@ class SelectionScreenData {
     required this.algoString,
     required this.defaulTextContent,
   });
-  
-  static SelectionScreenData initInstance(  ){
-    return SelectionScreenData( algoString : "FCFS"  , defaulTextContent : "This Screen contains dropdowns for selection of scheduling algorithm" ) ;
+
+  static SelectionScreenData initInstance() {
+    return SelectionScreenData(
+      algoString: "FCFS",
+      defaulTextContent: "This Screen contains dropdowns for selection of scheduling algorithm",
+    );
   }
-  
 }
 
 class ResultScreenData {
   List<ProcessData> genntData;
+  String algoString ;
   String defaulTextContent;
 
-  ResultScreenData({required this.genntData, required this.defaulTextContent});
+  ResultScreenData({required this.genntData, required this.defaulTextContent, required this.algoString});
 
-    static ResultScreenData initInstance(  ){
-    return ResultScreenData( genntData : [ ]  , defaulTextContent :"This Screen contains Gennt chart corresponding to data and algo" ) ;
+  static ResultScreenData initInstance() {
+    return ResultScreenData(
+      genntData: [],
+      algoString : "FCFS",
+      defaulTextContent:
+          "This Screen contains Gennt chart corresponding to data and algo",
+    );
   }
-  
 }
