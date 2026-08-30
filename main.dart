@@ -1,0 +1,49 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(body: Center(child: NumScreen())),
+    );
+  }
+}
+
+class NumScreen extends StatelessWidget {
+  Widget build(BuildContext context) {
+    return Text(
+      "This Screen contains a slider for choosing the number of processes",
+    );
+  }
+}
+
+class DataScreen extends StatelessWidget {
+  Widget build(BuildContext context) {
+    return Text(
+      "This Screen contains sliders for choosing AT and BT of chosen processes",
+    );
+  }
+}
+
+class SelectionScreen extends StatelessWidget {
+  Widget build(BuildContext context) {
+    return Text(
+      "This Screen contains dropdowns for selection of scheduling algorithm",
+    );
+  }
+}
+
+class ResultScreen extends StatelessWidget {
+  Widget build(BuildContext context) {
+    return Text(
+      "This Screen contains Gennt chart corresponding to data and algo",
+    );
+  }
+}
