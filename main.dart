@@ -458,7 +458,17 @@ class ResultScreen extends StatelessWidget {
               //Text(resultScreenData.defaulTextContent),
               
     );
+    
   }
+  
+      List<ProcessData> firstComeFirstServed( List<ProcessData> receivedGenntData ){
+      List<ProcessData> tempProcessDataList = [] ;
+      
+        //BoxSort according to AT, use pID when tie
+        
+      return tempProcessDataList;
+    }
+  
 }
 
 class DataToResultScreen extends StatelessWidget {
@@ -473,6 +483,7 @@ class DataToResultScreen extends StatelessWidget {
           child: ListTile(
             title: Text("P-${resultScreenData.genntData[index].processId}"),
             subtitle: Column(
+              crossAxisAlignment : CrossAxisAlignment.start,
               children: [
                 Text("AT : ${resultScreenData.genntData[index].arrivalTime}"),
                 Text("BT : ${resultScreenData.genntData[index].burstTime}"),
