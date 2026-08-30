@@ -139,7 +139,26 @@ class NumScreen extends StatelessWidget {
               /*Text(numScreenData.defaulTextContent),*/
               DataToNumScreen(
                 funcToUpdateProcessCount: funcToUpdateProcessCount,
-                funcToLoadNextPage : loadNextScreen
+                //funcToLoadNextPage : loadNextScreen
+              ),
+              ElevatedButton(
+                child: SizedBox(
+                  width: 100,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [Text("Confirm"), Icon(Icons.arrow_forward)],
+                  ),
+                ),
+                onPressed: () {
+                  //funcToUpdateProcessCount( tempValue );
+                  loadNextScreen();
+                  /*
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (ctx) => DataScreen()),
+                  );
+                  */
+                },
               ),
             ],
           ),
@@ -157,23 +176,29 @@ class IntWrapper {
 
 class DataToNumScreen extends StatelessWidget {
   final void Function(int) funcToUpdateProcessCount;
-    final void Function() funcToLoadNextPage;
+  //final void Function() funcToLoadNextPage;
   //final IntWrapper intWrapper = IntWrapper();
 
-  DataToNumScreen({required this.funcToUpdateProcessCount, required this.funcToLoadNextPage});
+  DataToNumScreen({
+    required this.funcToUpdateProcessCount /* required this.funcToLoadNextPage*/,
+  });
 
   Widget build(BuildContext context) {
-    return WidgetToContainSlider( funcToUpdateProcessCount : funcToUpdateProcessCount, funcToLoadNextPage : funcToLoadNextPage );
+    return WidgetToContainSlider(
+      funcToUpdateProcessCount:
+          funcToUpdateProcessCount /*funcToLoadNextPage : funcToLoadNextPage */,
+    );
   }
 }
 
 class WidgetToContainSlider extends StatefulWidget {
-  
   final void Function(int) funcToUpdateProcessCount;
-  final void Function() funcToLoadNextPage;
-  
-  WidgetToContainSlider( { required this.funcToUpdateProcessCount, required this.funcToLoadNextPage } );
-  
+  //final void Function() funcToLoadNextPage;
+
+  WidgetToContainSlider({
+    required this.funcToUpdateProcessCount /*required this.funcToLoadNextPage*/,
+  });
+
   State<WidgetToContainSlider> createState() => _WidgetToContainSliderState();
 }
 
@@ -181,28 +206,26 @@ class _WidgetToContainSliderState extends State<WidgetToContainSlider> {
   int tempValue = 0;
 
   Widget build(BuildContext context) {
-    return Column(
+    return Row(
+      mainAxisAlignment : MainAxisAlignment.center,
       children: [
+        Text( tempValue.toString() ),
         Slider(
           max: 10,
           divisions: 10,
           value: 1.0 * tempValue,
           onChanged: (sliderValue) {
-            int newValue = sliderValue.ceil();
-            tempValue = newValue;
+            //int newValue = sliderValue.ceil();
+            //tempValue = newValue;
+            setState((){tempValue = sliderValue.floor() ;}) ;
           },
         ),
         ElevatedButton(
-          child: SizedBox(
-            width: 100,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [Text("Confirm"), Icon(Icons.arrow_forward)],
-            ),
-          ),
+          child: Icon(Icons.check),
+
           onPressed: () {
-            (widget.funcToUpdateProcessCount)( tempValue );
-            (widget.funcToLoadNextPage)();
+            (widget.funcToUpdateProcessCount)(tempValue);
+            //(widget.funcToLoadNextPage)();
             /*
                   Navigator.push(
                     context,
