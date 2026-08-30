@@ -282,21 +282,8 @@ class DataScreen extends StatelessWidget {
                   */
                 },
               ) ]),
-      body: //Row(
-        //mainAxisAlignment: MainAxisAlignment.center,
-        //children: [
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              //Text( dataScreenData.defaulTextContent ),
-              Text(
-                "Current count of processes =  ${dataScreenData.processData.length}",
-              ),
-              //DataToDataScreen(dataScreenData: dataScreenData),
+      body: DataToDataScreen(dataScreenData: dataScreenData),
               //ProcessCard( index : 13 ),
-              //ProcessCard( index : 13 ),
-            ],
-          ),
        // ],
       //),
     );
