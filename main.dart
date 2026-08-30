@@ -77,8 +77,13 @@ class _InputScreenState extends State<InputScreen> {
                 )
               : SelectionScreen(
                   selectionScreenData: savedSelectionScreenData,
+                  funcToUpdateAlgoString : updateAlgoString,
                   loadNextScreen: loadResultScreen,
                 )));
+  }
+  
+  void updateAlgoString( String chosenAlgo ){
+    setState( (){ savedSelectionScreenData.algoString = chosenAlgo ; } );
   }
 
   void loadNumScreen() {
@@ -295,11 +300,13 @@ class DataScreen extends StatelessWidget {
 
 class SelectionScreen extends StatelessWidget {
   final SelectionScreenData selectionScreenData;
+final void Function(String) funcToUpdateAlgoString;
   final void Function() loadNextScreen;
 
   SelectionScreen({
     required this.loadNextScreen,
     required this.selectionScreenData,
+    required this.funcToUpdateAlgoString
   });
 
   Widget build(BuildContext context) {
@@ -312,7 +319,7 @@ class SelectionScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               //Text(selectionScreenData.defaulTextContent),
-              SelectionScreenDropDown(),
+              SelectionScreenDropDown( funcToUpdateAlgoString : funcToUpdateAlgoString ),
               ElevatedButton(
                 child: SizedBox(
                   width: 100,
@@ -322,6 +329,7 @@ class SelectionScreen extends StatelessWidget {
                   ),
                 ),
                 onPressed: () {
+                   
                   loadNextScreen();
                   /*
                   Navigator.push(
@@ -340,6 +348,9 @@ class SelectionScreen extends StatelessWidget {
 }
 
 class SelectionScreenDropDown extends StatefulWidget{
+  final void Function(String) funcToUpdateAlgoString;
+  
+  SelectionScreenDropDown( { required this.funcToUpdateAlgoString } );
   
   State<SelectionScreenDropDown> createState() => _SelectionScreenDropDownState() ;
 }
@@ -347,7 +358,7 @@ class SelectionScreenDropDown extends StatefulWidget{
 class _SelectionScreenDropDownState extends State<SelectionScreenDropDown>{
   
 
-  List<String> availableAlgo = [ "FCFS", "SJF", "SRTF", "LJF", "HRRN", "RoundRobin" ] ;
+  List<String> availableAlgo = [ "FCFS", "SJF", "SRTF", "LJF", "HRRN", "RoundRobin( QT = 2 )" ] ;
   //String defaultValue = "choose an Algorithm" ;  
   //String chosenValue = "" ;
   //String chosenValue = "choose an Algorithm" ;
@@ -361,6 +372,7 @@ class _SelectionScreenDropDownState extends State<SelectionScreenDropDown>{
         setState(() {
           chosenValue = value!;
         });
+        widget.funcToUpdateAlgoString( value! ) ;
       },
       dropdownMenuEntries: availableAlgo.map( ( String option ) => DropdownMenuEntry<String>( value : option, label : option )  ).toList( ) ,
     );    
