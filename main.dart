@@ -13,50 +13,61 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MainScreen extends StatefulWidget{
-  
+class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen>{
-  
+class _MainScreenState extends State<MainScreen> {
   String stateString = "default";
-  
-  Widget build( BuildContext context ){
-    return ( stateString == "result-screen" ? ResultScreen(  ) : NumScreen(   )  );
+
+  Widget build(BuildContext context) {
+    return (stateString == "result-screen" ? ResultScreen() : InputScreen());
   }
-  
-  void loadNumScreen(){
-    setState( (){ stateString = "num-screen" ; } );
+
+  void loadInputScreen() {
+    setState(() {
+      stateString = "input-screen";
+    });
   }
-  
-   void loadResultScreen(){
-    setState( (){ stateString = "result-screen" ; } );
+
+  void loadResultScreen() {
+    setState(() {
+      stateString = "result-screen";
+    });
   }
 }
 
-/*
-class NavigationButton extends StatelessWidget{
+class InputScreen extends StatefulWidget {
+  State<InputScreen> createState() => _InputScreenState();
+}
 
-  Widget nextScreen;
-  ScreenData data;
-  
-  NavigationButton( {required this.nextScreen, required this.data } );
+class _InputScreenState extends State<InputScreen> {
+  String stateString = "num-screen";
 
-  Widget build( BuildContext context ){
-    return ElevatedButton(
-          child: Row(children: [Text("Confirm"), Icon(Icons.arrow_forward)]),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (ctx) => DataScreen()),
-            );
-          },
-        );
+  Widget build(BuildContext context) {
+    return (stateString == "num-screen"
+        ? NumScreen()
+        : (stateString == "data-screen" ? DataScreen() : SelectionScreen()));
   }
 
+  void loadNumScreen() {
+    setState(() {
+      stateString = "num-screen";
+    });
+  }
+
+  void loadDataScreen() {
+    setState(() {
+      stateString = "data-screen";
+    });
+  }
+
+  void loadSelectionScreen() {
+    setState(() {
+      stateString = "selection-screen";
+    });
+  }
 }
-*/
 
 class NumScreen extends StatelessWidget {
   Widget build(BuildContext context) {
