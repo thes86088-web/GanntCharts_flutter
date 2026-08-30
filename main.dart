@@ -21,7 +21,9 @@ class _MainScreenState extends State<MainScreen> {
   String stateString = "default";
 
   Widget build(BuildContext context) {
-    return (stateString == "result-screen" ? ResultScreen() : InputScreen());
+    return (stateString == "result-screen"
+        ? ResultScreen(loadNextScreen: loadInputScreen)
+        : InputScreen(functionToLoadResultScreen: loadResultScreen));
   }
 
   void loadInputScreen() {
@@ -38,6 +40,10 @@ class _MainScreenState extends State<MainScreen> {
 }
 
 class InputScreen extends StatefulWidget {
+  final void Function() functionToLoadResultScreen;
+
+  InputScreen({required this.functionToLoadResultScreen});
+
   State<InputScreen> createState() => _InputScreenState();
 }
 
@@ -46,8 +52,10 @@ class _InputScreenState extends State<InputScreen> {
 
   Widget build(BuildContext context) {
     return (stateString == "num-screen"
-        ? NumScreen()
-        : (stateString == "data-screen" ? DataScreen() : SelectionScreen()));
+        ? NumScreen(loadNextScreen: loadDataScreen)
+        : (stateString == "data-screen"
+              ? DataScreen(loadNextScreen: loadSelectionScreen)
+              : SelectionScreen(loadNextScreen: loadResultScreen)));
   }
 
   void loadNumScreen() {
@@ -67,9 +75,17 @@ class _InputScreenState extends State<InputScreen> {
       stateString = "selection-screen";
     });
   }
+
+  void loadResultScreen() {
+    (widget.functionToLoadResultScreen)();
+  }
 }
 
 class NumScreen extends StatelessWidget {
+  final void Function() loadNextScreen;
+
+  NumScreen({required this.loadNextScreen});
+
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("NumScreen")),
@@ -91,10 +107,13 @@ class NumScreen extends StatelessWidget {
                   ),
                 ),
                 onPressed: () {
+                  loadNextScreen();
+                  /*
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (ctx) => DataScreen()),
                   );
+                  */
                 },
               ),
             ],
@@ -106,6 +125,10 @@ class NumScreen extends StatelessWidget {
 }
 
 class DataScreen extends StatelessWidget {
+  final void Function() loadNextScreen;
+
+  DataScreen({required this.loadNextScreen});
+
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("DataScreen")),
@@ -127,10 +150,13 @@ class DataScreen extends StatelessWidget {
                   ),
                 ),
                 onPressed: () {
+                  loadNextScreen();
+                  /*
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (ctx) => SelectionScreen()),
                   );
+                  */
                 },
               ),
             ],
@@ -142,6 +168,10 @@ class DataScreen extends StatelessWidget {
 }
 
 class SelectionScreen extends StatelessWidget {
+  final void Function() loadNextScreen;
+
+  SelectionScreen({required this.loadNextScreen});
+
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("SelectionScreen")),
@@ -163,10 +193,13 @@ class SelectionScreen extends StatelessWidget {
                   ),
                 ),
                 onPressed: () {
+                  loadNextScreen();
+                  /*
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (ctx) => ResultScreen()),
                   );
+                  */
                 },
               ),
             ],
@@ -178,6 +211,10 @@ class SelectionScreen extends StatelessWidget {
 }
 
 class ResultScreen extends StatelessWidget {
+  final void Function() loadNextScreen;
+
+  ResultScreen({required this.loadNextScreen});
+
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("ResultScreen")),
@@ -199,10 +236,13 @@ class ResultScreen extends StatelessWidget {
                   ),
                 ),
                 onPressed: () {
+                  loadNextScreen();
+                  /*
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (ctx) => NumScreen()),
                   );
+                  */
                 },
               ),
             ],
