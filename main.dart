@@ -16,10 +16,53 @@ class MyApp extends StatelessWidget {
   }
 }
 
+/*
+class NavigationButton extends StatelessWidget{
+
+  Widget nextScreen;
+  ScreenData data;
+  
+  NavigationButton( {required this.nextScreen, required this.data } );
+
+  Widget build( BuildContext context ){
+    return ElevatedButton(
+          child: Row(children: [Text("Confirm"), Icon(Icons.arrow_forward)]),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (ctx) => DataScreen()),
+            );
+          },
+        );
+  }
+
+}
+*/
+
 class NumScreen extends StatelessWidget {
   Widget build(BuildContext context) {
-    return Text(
-      "This Screen contains a slider for choosing the number of processes",
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          "This Screen contains a slider for choosing the number of processes",
+        ),
+        ElevatedButton(
+          child: SizedBox(
+            width: 100,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [Text("Confirm"), Icon(Icons.arrow_forward)],
+            ),
+          ),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (ctx) => DataScreen()),
+            );
+          },
+        ),
+      ],
     );
   }
 }
