@@ -27,7 +27,10 @@ class _MainScreenState extends State<MainScreen> {
             resultScreenData: savedResultScreenData,
             loadNextScreen: loadInputScreen,
           )
-        : InputScreen(functionToLoadResultScreen: loadResultScreen  /*(){loadResultScreen( receivedGenntData );}*/ ));
+        : InputScreen(
+            functionToLoadResultScreen:
+                loadResultScreen /*(){loadResultScreen( receivedGenntData );}*/,
+          ));
   }
 
   void loadInputScreen() {
@@ -36,17 +39,17 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
-  void loadResultScreen( List<ProcessData> newGenntData, String chosenAlgo ) {
+  void loadResultScreen(List<ProcessData> newGenntData, String chosenAlgo) {
     setState(() {
       stateString = "result-screen";
-      savedResultScreenData.genntData = newGenntData ;
-      savedResultScreenData.algoString = chosenAlgo ;
+      savedResultScreenData.genntData = newGenntData;
+      savedResultScreenData.algoString = chosenAlgo;
     });
   }
 }
 
 class InputScreen extends StatefulWidget {
-  final void Function( List<ProcessData>, String ) functionToLoadResultScreen;
+  final void Function(List<ProcessData>, String) functionToLoadResultScreen;
 
   InputScreen({required this.functionToLoadResultScreen});
 
@@ -65,6 +68,7 @@ class _InputScreenState extends State<InputScreen> {
         ? NumScreen(
             numScreenData: savedNumScreenData,
             loadNextScreen: loadDataScreen,
+            funcToUpdateProcessCount: updateProcessCount,
           )
         : (stateString == "data-screen"
               ? DataScreen(
@@ -86,6 +90,9 @@ class _InputScreenState extends State<InputScreen> {
   void loadDataScreen() {
     setState(() {
       stateString = "data-screen";
+      savedDataScreenData.processData = DataScreenData.listOfInitProcessData(
+        savedNumScreenData.chosenCount,
+      );
     });
   }
 
@@ -96,15 +103,29 @@ class _InputScreenState extends State<InputScreen> {
   }
 
   void loadResultScreen() {
-    (widget.functionToLoadResultScreen)( savedDataScreenData.processData, savedSelectionScreenData.algoString );
+    (widget.functionToLoadResultScreen)(
+      savedDataScreenData.processData,
+      savedSelectionScreenData.algoString,
+    );
+  }
+
+  void updateProcessCount(int newCount) {
+    setState(() {
+      savedNumScreenData.chosenCount = newCount;
+    });
   }
 }
 
 class NumScreen extends StatelessWidget {
   final NumScreenData numScreenData;
   final void Function() loadNextScreen;
+  final void Function(int) funcToUpdateProcessCount;
 
-  NumScreen({required this.loadNextScreen, required this.numScreenData});
+  NumScreen({
+    required this.loadNextScreen,
+    required this.numScreenData,
+    required this.funcToUpdateProcessCount,
+  });
 
   Widget build(BuildContext context) {
     return Scaffold(
@@ -115,29 +136,82 @@ class NumScreen extends StatelessWidget {
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(numScreenData.defaulTextContent),
-              ElevatedButton(
-                child: SizedBox(
-                  width: 100,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [Text("Confirm"), Icon(Icons.arrow_forward)],
-                  ),
-                ),
-                onPressed: () {
-                  loadNextScreen();
-                  /*
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (ctx) => DataScreen()),
-                  );
-                  */
-                },
+              /*Text(numScreenData.defaulTextContent),*/
+              DataToNumScreen(
+                funcToUpdateProcessCount: funcToUpdateProcessCount,
+                funcToLoadNextPage : loadNextScreen
               ),
             ],
           ),
         ],
       ),
+    );
+  }
+}
+
+/*
+class IntWrapper {
+  int value = 0;
+}
+*/
+
+class DataToNumScreen extends StatelessWidget {
+  final void Function(int) funcToUpdateProcessCount;
+    final void Function() funcToLoadNextPage;
+  //final IntWrapper intWrapper = IntWrapper();
+
+  DataToNumScreen({required this.funcToUpdateProcessCount, required this.funcToLoadNextPage});
+
+  Widget build(BuildContext context) {
+    return WidgetToContainSlider( funcToUpdateProcessCount : funcToUpdateProcessCount, funcToLoadNextPage : funcToLoadNextPage );
+  }
+}
+
+class WidgetToContainSlider extends StatefulWidget {
+  
+  final void Function(int) funcToUpdateProcessCount;
+  final void Function() funcToLoadNextPage;
+  
+  WidgetToContainSlider( { required this.funcToUpdateProcessCount, required this.funcToLoadNextPage } );
+  
+  State<WidgetToContainSlider> createState() => _WidgetToContainSliderState();
+}
+
+class _WidgetToContainSliderState extends State<WidgetToContainSlider> {
+  int tempValue = 0;
+
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Slider(
+          max: 10,
+          divisions: 10,
+          value: 1.0 * tempValue,
+          onChanged: (sliderValue) {
+            int newValue = sliderValue.ceil();
+            tempValue = newValue;
+          },
+        ),
+        ElevatedButton(
+          child: SizedBox(
+            width: 100,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [Text("Confirm"), Icon(Icons.arrow_forward)],
+            ),
+          ),
+          onPressed: () {
+            (widget.funcToUpdateProcessCount)( tempValue );
+            (widget.funcToLoadNextPage)();
+            /*
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (ctx) => DataScreen()),
+                  );
+                  */
+          },
+        ),
+      ],
     );
   }
 }
@@ -298,6 +372,15 @@ class DataScreenData {
       defaulTextContent: "This Screen contains sliders for choosing AT and BT of chosen processes",
     );
   }
+
+  static List<ProcessData> listOfInitProcessData(int chosenCount) {
+    List<ProcessData> result = [];
+    for (var x = 0; x < chosenCount; x++) {
+      result.add(ProcessData.initInstance());
+    }
+
+    return result;
+  }
 }
 
 class ProcessData {
@@ -308,6 +391,10 @@ class ProcessData {
   int burstTime;
 
   ProcessData({required this.arrivalTime, required this.burstTime});
+
+  static ProcessData initInstance() {
+    return ProcessData(arrivalTime: 0, burstTime: 0);
+  }
 }
 
 class SelectionScreenData {
@@ -329,15 +416,19 @@ class SelectionScreenData {
 
 class ResultScreenData {
   List<ProcessData> genntData;
-  String algoString ;
+  String algoString;
   String defaulTextContent;
 
-  ResultScreenData({required this.genntData, required this.defaulTextContent, required this.algoString});
+  ResultScreenData({
+    required this.genntData,
+    required this.defaulTextContent,
+    required this.algoString,
+  });
 
   static ResultScreenData initInstance() {
     return ResultScreenData(
       genntData: [],
-      algoString : "FCFS",
+      algoString: "FCFS",
       defaulTextContent:
           "This Screen contains Gennt chart corresponding to data and algo",
     );
