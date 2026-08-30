@@ -139,8 +139,9 @@ class NumScreen extends StatelessWidget {
               /*Text(numScreenData.defaulTextContent),*/
               DataToNumScreen(
                 funcToUpdateProcessCount: funcToUpdateProcessCount,
-                //funcToLoadNextPage : loadNextScreen
+                funcToLoadNextPage : loadNextScreen
               ),
+              /*
               ElevatedButton(
                 child: SizedBox(
                   width: 100,
@@ -160,6 +161,7 @@ class NumScreen extends StatelessWidget {
                   */
                 },
               ),
+              */
             ],
           ),
         ],
@@ -176,28 +178,30 @@ class IntWrapper {
 
 class DataToNumScreen extends StatelessWidget {
   final void Function(int) funcToUpdateProcessCount;
-  //final void Function() funcToLoadNextPage;
+  final void Function() funcToLoadNextPage;
   //final IntWrapper intWrapper = IntWrapper();
 
   DataToNumScreen({
-    required this.funcToUpdateProcessCount /* required this.funcToLoadNextPage*/,
+    required this.funcToUpdateProcessCount, required this.funcToLoadNextPage,
   });
 
   Widget build(BuildContext context) {
     return WidgetToContainSlider(
       funcToUpdateProcessCount:
-          funcToUpdateProcessCount /*funcToLoadNextPage : funcToLoadNextPage */,
+          funcToUpdateProcessCount, funcToLoadNextPage : funcToLoadNextPage ,
     );
   }
 }
 
 class WidgetToContainSlider extends StatefulWidget {
   final void Function(int) funcToUpdateProcessCount;
-  //final void Function() funcToLoadNextPage;
+  final void Function() funcToLoadNextPage;
 
+  
   WidgetToContainSlider({
-    required this.funcToUpdateProcessCount /*required this.funcToLoadNextPage*/,
+    required this.funcToUpdateProcessCount, required this.funcToLoadNextPage,
   });
+  
 
   State<WidgetToContainSlider> createState() => _WidgetToContainSliderState();
 }
@@ -206,7 +210,7 @@ class _WidgetToContainSliderState extends State<WidgetToContainSlider> {
   int tempValue = 0;
 
   Widget build(BuildContext context) {
-    return Row(
+    return Column( children :  [Row(
       mainAxisAlignment : MainAxisAlignment.center,
       children: [
         Text( tempValue.toString() ),
@@ -219,13 +223,14 @@ class _WidgetToContainSliderState extends State<WidgetToContainSlider> {
             //tempValue = newValue;
             setState((){tempValue = sliderValue.floor() ;}) ;
           },
-        ),
-        ElevatedButton(
+        ),        
+      ],
+    ),         ElevatedButton(
           child: Icon(Icons.check),
 
           onPressed: () {
             (widget.funcToUpdateProcessCount)(tempValue);
-            //(widget.funcToLoadNextPage)();
+            (widget.funcToLoadNextPage)();
             /*
                   Navigator.push(
                     context,
@@ -233,9 +238,7 @@ class _WidgetToContainSliderState extends State<WidgetToContainSlider> {
                   );
                   */
           },
-        ),
-      ],
-    );
+        )]);
   }
 }
 
