@@ -74,12 +74,27 @@ class _InputScreenState extends State<InputScreen> {
               ? DataScreen(
                   dataScreenData: savedDataScreenData,
                   loadNextScreen: loadSelectionScreen,
+                  funcToReplaceProcessDataInstance: replaceProcessDataInstance,
                 )
               : SelectionScreen(
                   selectionScreenData: savedSelectionScreenData,
                   funcToUpdateAlgoString: updateAlgoString,
                   loadNextScreen: loadResultScreen,
                 )));
+  }
+
+  void replaceProcessDataInstance({
+    required int index,
+    required int newArrivalTime,
+    required int newBurstTime,
+  }) {
+    setState(() {
+      savedDataScreenData.processData[index] = ProcessData(
+        processId: index,
+        arrivalTime: newArrivalTime,
+        burstTime: newBurstTime,
+      );
+    });
   }
 
   void updateAlgoString(String chosenAlgo) {
@@ -259,32 +274,50 @@ class _WidgetToContainSliderState extends State<WidgetToContainSlider> {
 class DataScreen extends StatelessWidget {
   final DataScreenData dataScreenData;
   final void Function() loadNextScreen;
+  final void Function({
+    required int index,
+    required int newArrivalTime,
+    required int newBurstTime,
+  })
+  funcToReplaceProcessDataInstance;
 
-  DataScreen({required this.loadNextScreen, required this.dataScreenData});
+  DataScreen({
+    required this.loadNextScreen,
+    required this.dataScreenData,
+    required this.funcToReplaceProcessDataInstance,
+  });
 
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("DataScreen"), actions : [               ElevatedButton(
-                child: SizedBox(
-                  width: 100,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [Text("Confirm"), Icon(Icons.arrow_forward)],
-                  ),
-                ),
-                onPressed: () {
-                  loadNextScreen();
-                  /*
+      appBar: AppBar(
+        title: Text("DataScreen"),
+        actions: [
+          ElevatedButton(
+            child: SizedBox(
+              width: 100,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [Text("Confirm"), Icon(Icons.arrow_forward)],
+              ),
+            ),
+            onPressed: () {
+              loadNextScreen();
+              /*
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (ctx) => SelectionScreen()),
                   );
                   */
-                },
-              ) ]),
-      body: DataToDataScreen(dataScreenData: dataScreenData),
-              //ProcessCard( index : 13 ),
-       // ],
+            },
+          ),
+        ],
+      ),
+      body: DataToDataScreen(
+        dataScreenData: dataScreenData,
+        funcToReplaceProcessDataInstance: funcToReplaceProcessDataInstance,
+      ),
+      //ProcessCard( index : 13 ),
+      // ],
       //),
     );
   }
@@ -408,7 +441,8 @@ class ResultScreen extends StatelessWidget {
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(resultScreenData.defaulTextContent),
+              DataToResultScreen(resultScreenData: resultScreenData),
+              //Text(resultScreenData.defaulTextContent),
               ElevatedButton(
                 child: SizedBox(
                   width: 100,
@@ -435,6 +469,18 @@ class ResultScreen extends StatelessWidget {
   }
 }
 
+class DataToResultScreen extends StatelessWidget {
+  final ResultScreenData resultScreenData;
+  DataToResultScreen({required this.resultScreenData});
+
+  Widget build(BuildContext context) {
+    return Text(
+      "This Screen will display Gennt Chart for ${resultScreenData.algoString} on chosen ${resultScreenData.genntData.length} processes",
+    );
+    //ListView.builder( itemCount : resultScreenData.genntData.length );
+  }
+}
+
 /*
 class ProcessCard extends StatelessWidget{
   
@@ -448,10 +494,21 @@ class ProcessCard extends StatelessWidget{
 }
 */
 
-
 class ProcessCard extends StatefulWidget {
   final ProcessData processData;
-  ProcessCard({required this.processData});
+  final int processIndex;
+  final void Function({
+    required int index,
+    required int newArrivalTime,
+    required int newBurstTime,
+  })
+  replaceProcessData;
+
+  ProcessCard({
+    required this.processData,
+    required this.replaceProcessData,
+    required this.processIndex,
+  });
 
   State<ProcessCard> createState() => _ProcessCardState();
 }
@@ -462,28 +519,38 @@ class _ProcessCardState extends State<ProcessCard> {
 
   Widget build(BuildContext context) {
     return Card(
-      child:
-          ListTile(
-            leading : IconButton(icon: Icon(Icons.check), onPressed: () {}),
-            title: Text( "P-${widget.processData.processId}" ),
-            subtitle: Row(
-              children: [
+      child: ListTile(
+        leading: IconButton(
+          icon: Icon(Icons.check),
+          onPressed: () {
+            widget.replaceProcessData(
+              index: widget.processIndex,
+              newArrivalTime: tempArrivalTime,
+              newBurstTime: tempBurstTime,
+            );
+          },
+        ),
+        title: Text("P-${widget.processData.processId}"),
+        subtitle: Row(
+          children: [
+            /*
                 Text( "AT Slot" ),
                 Text( "BT Slot" )
-                /*
-                SliderContainer(
-                  currValue: tempArrivalTime,
-                  funcToUpdateCurrValue: updateArrivalTime,
-                ),
-                
-                SliderContainer(
-                  currValue: tempBurstTime,
-                  funcToUpdateCurrValue: updateBurstTime,
-                ),
                 */
-              ],
+            SliderContainer(
+              currValue: tempArrivalTime,
+              label: "AT",
+              funcToUpdateCurrValue: updateArrivalTime,
             ),
-          ),
+
+            SliderContainer(
+              currValue: tempBurstTime,
+              label: "BT",
+              funcToUpdateCurrValue: updateBurstTime,
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -495,18 +562,19 @@ class _ProcessCardState extends State<ProcessCard> {
 
   void updateBurstTime(int newBT) {
     setState(() {
-      tempArrivalTime = newBT;
+      tempBurstTime = newBT;
     });
   }
 }
 
-/*
 class SliderContainer extends StatelessWidget {
   final int currValue;
+  final String label;
   final void Function(int) funcToUpdateCurrValue;
 
   SliderContainer({
     required this.currValue,
+    required this.label,
     required this.funcToUpdateCurrValue,
   });
 
@@ -514,7 +582,7 @@ class SliderContainer extends StatelessWidget {
     return Card(
       child: Column(
         children: [
-          Text("Value ${currValue}"),
+          Text("${label} = ${currValue}"),
           Slider(
             max: 10,
             divisions: 10,
@@ -528,13 +596,19 @@ class SliderContainer extends StatelessWidget {
     );
   }
 }
-*/
-  
+
 class DataToDataScreen extends StatelessWidget {
   final DataScreenData dataScreenData;
+  final void Function({
+    required int index,
+    required int newArrivalTime,
+    required int newBurstTime,
+  })
+  funcToReplaceProcessDataInstance;
   //final List<ProcessData>? processDataList;
   DataToDataScreen({
     required this.dataScreenData /*required this.processDataList*/,
+    required this.funcToReplaceProcessDataInstance,
   });
 
   Widget build(BuildContext context) {
@@ -549,9 +623,13 @@ class DataToDataScreen extends StatelessWidget {
       return Text("The list of processes is empty ");
     } else {
       return ListView.builder(
-        itemCount : processDataList.length,
+        itemCount: processDataList.length,
         itemBuilder: (context, index) {
-          return ProcessCard( /*index : index*/ processData: processDataList[index] );
+          return ProcessCard(
+            processIndex: index,
+            processData: processDataList[index],
+            replaceProcessData: funcToReplaceProcessDataInstance,
+          );
         },
       );
     }
@@ -590,6 +668,7 @@ class DataScreenData {
     List<ProcessData> result = [];
     for (int x = 0; x < chosenCount; x = x + 1) {
       ProcessData tempInstance = ProcessData.initInstance();
+      tempInstance.processId = x;
       result.add(tempInstance);
     }
 
@@ -598,16 +677,21 @@ class DataScreenData {
 }
 
 class ProcessData {
-  static int processCount = 0;
+  //static int processCount = 0;
 
-  final int processId = processCount++;
+  //final int processId = processCount++;
+  int processId;
   int arrivalTime;
   int burstTime;
 
-  ProcessData({required this.arrivalTime, required this.burstTime});
+  ProcessData({
+    required this.arrivalTime,
+    required this.burstTime,
+    required this.processId,
+  });
 
   static ProcessData initInstance() {
-    return ProcessData(arrivalTime: 0, burstTime: 0);
+    return ProcessData(arrivalTime: 0, burstTime: 0, processId: 0);
   }
 }
 
