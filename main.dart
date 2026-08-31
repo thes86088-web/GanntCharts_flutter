@@ -466,9 +466,22 @@ class DataToResultScreen extends StatelessWidget {
 
   Widget build(BuildContext context) {
     
-    GenttData genttData = (ResultScreen.algoMap[ resultScreenData.algoString ]!)( resultScreenData.genntData ) ;
+    /*GenttData genttData = ( ResultScreen.algoMap[ resultScreenData.algoString ] )( resultScreenData.genntData ) ;
+    */
     
-    return GenttChart( genttData : genttData );
+    Widget resultantBody;
+    if( ResultScreen.algoMap[ resultScreenData.algoString ] == null ){
+      resultantBody = Text( "no valid function found" );
+      return resultantBody ;
+    }
+    else{
+      GenttData genttData = ( ResultScreen.algoMap[ resultScreenData.algoString ]! )( resultScreenData.genntData ) ;
+      
+      resultantBody = GenttChart( genttData : genttData );
+      return resultantBody;
+    }
+    //return resultantBody ;
+    //return GenttChart( genttData : genttData );
     
   }
 }
