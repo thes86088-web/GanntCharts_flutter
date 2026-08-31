@@ -1,688 +1,29 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  MyApp({super.key});
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(debugShowCheckedModeBanner: false, home: MainScreen());
-  }
-}
-
-class MainScreen extends StatefulWidget {
-  State<MainScreen> createState() => _MainScreenState();
-}
-
-class _MainScreenState extends State<MainScreen> {
-  String stateString = "default";
-  ResultScreenData savedResultScreenData = ResultScreenData.initInstance();
-
-  Widget build(BuildContext context) {
-    return (stateString == "result-screen"
-        ? ResultScreen(
-            resultScreenData: savedResultScreenData,
-            loadNextScreen: loadInputScreen,
-          )
-        : InputScreen(functionToLoadResultScreen: loadResultScreen));
-  }
-
-  void loadInputScreen() {
-    setState(() {
-      stateString = "input-screen";
-    });
-  }
-
-  void loadResultScreen(List<ProcessData> newGenntData, String chosenAlgo) {
-    setState(() {
-      stateString = "result-screen";
-      savedResultScreenData.genntData = newGenntData;
-      savedResultScreenData.algoString = chosenAlgo;
-    });
-  }
-}
-
-class InputScreen extends StatefulWidget {
-  final void Function(List<ProcessData>, String) functionToLoadResultScreen;
-
-  InputScreen({required this.functionToLoadResultScreen});
-
-  State<InputScreen> createState() => _InputScreenState();
-}
-
-class _InputScreenState extends State<InputScreen> {
-  String stateString = "num-screen";
-  final NumScreenData savedNumScreenData = NumScreenData.initInstance();
-  final DataScreenData savedDataScreenData = DataScreenData.initInstance();
-  final SelectionScreenData savedSelectionScreenData =
-      SelectionScreenData.initInstance();
-
-  Widget build(BuildContext context) {
-    return (stateString == "num-screen"
-        ? NumScreen(
-            numScreenData: savedNumScreenData,
-            loadNextScreen: loadDataScreen,
-            funcToUpdateProcessCount: updateProcessCount,
-          )
-        : (stateString == "data-screen"
-              ? DataScreen(
-                  dataScreenData: savedDataScreenData,
-                  loadNextScreen: loadSelectionScreen,
-                  funcToReplaceProcessDataInstance: replaceProcessDataInstance,
-                )
-              : SelectionScreen(
-                  selectionScreenData: savedSelectionScreenData,
-                  funcToUpdateAlgoString: updateAlgoString,
-                  loadNextScreen: loadResultScreen,
-                )));
-  }
-
-  void replaceProcessDataInstance({
-    required int index,
-    required int newArrivalTime,
-    required int newBurstTime,
-  }) {
-    setState(() {
-      savedDataScreenData.processData[index] = ProcessData(
-        processId: index,
-        arrivalTime: newArrivalTime,
-        burstTime: newBurstTime,
-      );
-    });
-  }
-
-  void updateAlgoString(String chosenAlgo) {
-    setState(() {
-      savedSelectionScreenData.algoString = chosenAlgo;
-    });
-  }
-
-  void loadNumScreen() {
-    setState(() {
-      stateString = "num-screen";
-    });
-  }
-
-  void loadDataScreen() {
-    setState(() {
-      stateString = "data-screen";
-      savedDataScreenData.processData = DataScreenData.listOfInitProcessData(
-        savedNumScreenData.chosenCount,
-      );
-    });
-  }
-
-  void loadSelectionScreen() {
-    setState(() {
-      stateString = "selection-screen";
-    });
-  }
-
-  void loadResultScreen() {
-    (widget.functionToLoadResultScreen)(
-      savedDataScreenData.processData,
-      savedSelectionScreenData.algoString,
-    );
-  }
-
-  void updateProcessCount(int newCount) {
-    setState(() {
-      savedNumScreenData.chosenCount = newCount;
-    });
-  }
-}
-
-class NumScreen extends StatelessWidget {
-  final NumScreenData numScreenData;
-  final void Function() loadNextScreen;
-  final void Function(int) funcToUpdateProcessCount;
-
-  NumScreen({
-    required this.loadNextScreen,
-    required this.numScreenData,
-    required this.funcToUpdateProcessCount,
-  });
-
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text("NumScreen")),
-      body: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              DataToNumScreen(
-                funcToUpdateProcessCount: funcToUpdateProcessCount,
-                funcToLoadNextPage: loadNextScreen,
-              ),
-            ],
-          ),
-        ],
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'CPU Scheduling Simulator',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
+        useMaterial3: true,
       ),
+      home: const MainScreen(),
     );
   }
 }
 
-class DataToNumScreen extends StatelessWidget {
-  final void Function(int) funcToUpdateProcessCount;
-  final void Function() funcToLoadNextPage;
-
-  DataToNumScreen({
-    required this.funcToUpdateProcessCount,
-    required this.funcToLoadNextPage,
-  });
-
-  Widget build(BuildContext context) {
-    return WidgetToContainSlider(
-      funcToUpdateProcessCount: funcToUpdateProcessCount,
-      funcToLoadNextPage: funcToLoadNextPage,
-    );
-  }
-}
-
-class WidgetToContainSlider extends StatefulWidget {
-  final void Function(int) funcToUpdateProcessCount;
-  final void Function() funcToLoadNextPage;
-
-  WidgetToContainSlider({
-    required this.funcToUpdateProcessCount,
-    required this.funcToLoadNextPage,
-  });
-
-  State<WidgetToContainSlider> createState() => _WidgetToContainSliderState();
-}
-
-class _WidgetToContainSliderState extends State<WidgetToContainSlider> {
-  int tempValue = 0;
-
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(tempValue.toString()),
-            Slider(
-              max: 10,
-              divisions: 10,
-              value: 1.0 * tempValue,
-              onChanged: (sliderValue) {
-                setState(() {
-                  tempValue = sliderValue.floor();
-                });
-              },
-            ),
-          ],
-        ),
-        ElevatedButton(
-          child: Icon(Icons.check),
-
-          onPressed: () {
-            (widget.funcToUpdateProcessCount)(tempValue);
-            (widget.funcToLoadNextPage)();
-          },
-        ),
-      ],
-    );
-  }
-}
-
-class DataScreen extends StatelessWidget {
-  final DataScreenData dataScreenData;
-  final void Function() loadNextScreen;
-  final void Function({
-    required int index,
-    required int newArrivalTime,
-    required int newBurstTime,
-  })
-  funcToReplaceProcessDataInstance;
-
-  DataScreen({
-    required this.loadNextScreen,
-    required this.dataScreenData,
-    required this.funcToReplaceProcessDataInstance,
-  });
-
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("DataScreen"),
-        actions: [
-          ElevatedButton(
-            child: SizedBox(
-              width: 100,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [Text("Confirm"), Icon(Icons.arrow_forward)],
-              ),
-            ),
-            onPressed: () {
-              loadNextScreen();
-            },
-          ),
-        ],
-      ),
-      body: DataToDataScreen(
-        dataScreenData: dataScreenData,
-        funcToReplaceProcessDataInstance: funcToReplaceProcessDataInstance,
-      ),
-    );
-  }
-}
-
-class SelectionScreen extends StatelessWidget {
-  final SelectionScreenData selectionScreenData;
-  final void Function(String) funcToUpdateAlgoString;
-  final void Function() loadNextScreen;
-
-  SelectionScreen({
-    required this.loadNextScreen,
-    required this.selectionScreenData,
-    required this.funcToUpdateAlgoString,
-  });
-
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text("SelectionScreen")),
-      body: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SelectionScreenDropDown(
-                funcToUpdateAlgoString: funcToUpdateAlgoString,
-              ),
-              ElevatedButton(
-                child: SizedBox(
-                  width: 100,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [Text("Confirm"), Icon(Icons.arrow_forward)],
-                  ),
-                ),
-                onPressed: () {
-                  loadNextScreen();
-                },
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class SelectionScreenDropDown extends StatefulWidget {
-  final void Function(String) funcToUpdateAlgoString;
-
-  SelectionScreenDropDown({required this.funcToUpdateAlgoString});
-
-  State<SelectionScreenDropDown> createState() =>
-      _SelectionScreenDropDownState();
-}
-
-class _SelectionScreenDropDownState extends State<SelectionScreenDropDown> {
-  List<String> availableAlgo = [
-    "FCFS",
-    "SJF",
-    "SRTF",
-    "LJF",
-    "HRRN",
-    "RoundRobin( QT = 2 )",
-  ];
-  String chosenValue = "FCFS";
-
-  Widget build(BuildContext context) {
-    return DropdownMenu<String>(
-      initialSelection: availableAlgo.first,
-      onSelected: (String? value) {
-        setState(() {
-          chosenValue = value!;
-        });
-        widget.funcToUpdateAlgoString(value!);
-      },
-      dropdownMenuEntries: availableAlgo
-          .map(
-            (String option) =>
-                DropdownMenuEntry<String>(value: option, label: option),
-          )
-          .toList(),
-    );
-  }
-}
-
-class ResultScreen extends StatelessWidget {
-  final ResultScreenData resultScreenData;
-  final void Function() loadNextScreen;
-
-  ResultScreen({required this.loadNextScreen, required this.resultScreenData});
-
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("ResultScreen"),
-        actions: [
-          ElevatedButton(
-            child: SizedBox(
-              width: 100,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [Text("Restart"), Icon(Icons.restart_alt)],
-              ),
-            ),
-            onPressed: () {
-              loadNextScreen();
-            },
-          ),
-        ],
-      ),
-      body: DataToResultScreen(resultScreenData: resultScreenData),
-    );
-  }
-
-  static GenttData firstComeFirstServed(List<ProcessData> receivedGenntData) {
-    //find maxAT( no.of rows in matrix )
-    //find totalBT ( len of Gennt Chart )
-    int maxAT = 0;
-    int totalBT = 0;
-
-    List<int> uniqueProcessIds = [];
-
-    for (int i = 0; i < receivedGenntData.length; i++) {
-      ProcessData tempData = receivedGenntData[i];
-      if (tempData.arrivalTime > maxAT) {
-        maxAT = tempData.arrivalTime;
-      }
-      totalBT = totalBT + tempData.burstTime;
-    }
-
-    List<List<ProcessData>> processMatrix = [];
-
-    //arrange each process in a row corresponding to its AT
-    for (int j = 0; j < receivedGenntData.length; j++) {
-      ProcessData tempData = receivedGenntData[j];
-
-      (processMatrix[tempData.arrivalTime])[tempData.processId] = tempData;
-    }
-
-    for (int k = 0; k < maxAT; k++) {
-      if (processMatrix[k].isNotEmpty) {
-        uniqueProcessIds.add(k);
-      }
-    }
-
-    List<int> genttList = [];
-    //start a loop on aT till maxAT
-    //int latestAT = 0;
-    for (int aT = 0; aT <= totalBT; aT++) {
-      if (processMatrix[aT].isNotEmpty) {
-        if (processMatrix[aT].length == 1) {
-          ProcessData currProcess = (processMatrix[aT])[0];
-          int duration = currProcess.burstTime;
-
-          for (int d = 0; d < duration; d++) {
-            genttList.add(currProcess.processId);
-          }
-        } else {
-          int numOfProcessWithSameId = processMatrix[aT].length;
-          for (int pIndex = 0; pIndex < numOfProcessWithSameId; pIndex++) {
-            ProcessData currProcess = (processMatrix[aT])[pIndex];
-            int duration = currProcess.burstTime;
-
-            for (int d = 0; d < duration; d++) {
-              genttList.add(currProcess.processId);
-            }
-          }
-        }
-      }
-    }
-
-    GenttData result = GenttData(
-      genttList: genttList,
-      uniqueProcessIds: uniqueProcessIds,
-    );
-    return result;
-  }
-  
-  static Map<String, Function> algoMap = { "FCFS" : ResultScreen.firstComeFirstServed };
-  
-}
-
-class GenttData {
-  List<int> genttList;
-  List<int> uniqueProcessIds;
-
-  GenttData({required this.genttList, required this.uniqueProcessIds});
-}
-
-class DataToResultScreen extends StatelessWidget {
-  final ResultScreenData resultScreenData;
-  DataToResultScreen({required this.resultScreenData});
-
-  Widget build(BuildContext context) {
-    
-    /*GenttData genttData = ( ResultScreen.algoMap[ resultScreenData.algoString ] )( resultScreenData.genntData ) ;
-    */
-    
-    Widget resultantBody;
-    if( ResultScreen.algoMap[ resultScreenData.algoString ] == null ){
-      resultantBody = Text( "no valid function found" );
-      return resultantBody ;
-    }
-    else{
-      GenttData genttData = ( ResultScreen.algoMap[ resultScreenData.algoString ]! )( resultScreenData.genntData ) ;
-      
-      resultantBody = GenttChart( genttData : genttData );
-      return resultantBody;
-    }
-    //return resultantBody ;
-    //return GenttChart( genttData : genttData );
-    
-  }
-}
-/*
-class DataToResultScreen extends StatelessWidget {
-  final ResultScreenData resultScreenData;
-  DataToResultScreen({required this.resultScreenData});
-
-  Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: resultScreenData.genntData.length,
-      itemBuilder: (context, index) {
-        return Card(
-          child: ListTile(
-            title: Text("P-${resultScreenData.genntData[index].processId}"),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("AT : ${resultScreenData.genntData[index].arrivalTime}"),
-                Text("BT : ${resultScreenData.genntData[index].burstTime}"),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
-*/
-
-class ProcessCard extends StatefulWidget {
-  final ProcessData processData;
-  final int processIndex;
-  final void Function({
-    required int index,
-    required int newArrivalTime,
-    required int newBurstTime,
-  })
-  replaceProcessData;
-
-  ProcessCard({
-    required this.processData,
-    required this.replaceProcessData,
-    required this.processIndex,
-  });
-
-  State<ProcessCard> createState() => _ProcessCardState();
-}
-
-class _ProcessCardState extends State<ProcessCard> {
-  int tempArrivalTime = 0;
-  int tempBurstTime = 0;
-
-  Widget build(BuildContext context) {
-    return Card(
-      child: ListTile(
-        leading: IconButton(
-          icon: Icon(Icons.check),
-          onPressed: () {
-            widget.replaceProcessData(
-              index: widget.processIndex,
-              newArrivalTime: tempArrivalTime,
-              newBurstTime: tempBurstTime,
-            );
-          },
-        ),
-        title: Text("P-${widget.processData.processId}"),
-        subtitle: Row(
-          children: [
-            SliderContainer(
-              currValue: tempArrivalTime,
-              label: "AT",
-              funcToUpdateCurrValue: updateArrivalTime,
-            ),
-
-            SliderContainer(
-              currValue: tempBurstTime,
-              label: "BT",
-              funcToUpdateCurrValue: updateBurstTime,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void updateArrivalTime(int newAT) {
-    setState(() {
-      tempArrivalTime = newAT;
-    });
-  }
-
-  void updateBurstTime(int newBT) {
-    setState(() {
-      tempBurstTime = newBT;
-    });
-  }
-}
-
-class SliderContainer extends StatelessWidget {
-  final int currValue;
-  final String label;
-  final void Function(int) funcToUpdateCurrValue;
-
-  SliderContainer({
-    required this.currValue,
-    required this.label,
-    required this.funcToUpdateCurrValue,
-  });
-
-  Widget build(BuildContext context) {
-    return Card(
-      child: Column(
-        children: [
-          Text("${label} = ${currValue}"),
-          Slider(
-            max: 10,
-            divisions: 10,
-            value: 1.0 * currValue,
-            onChanged: (sliderValue) {
-              funcToUpdateCurrValue(sliderValue.ceil());
-            },
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class DataToDataScreen extends StatelessWidget {
-  final DataScreenData dataScreenData;
-  final void Function({
-    required int index,
-    required int newArrivalTime,
-    required int newBurstTime,
-  })
-  funcToReplaceProcessDataInstance;
-  DataToDataScreen({
-    required this.dataScreenData,
-    required this.funcToReplaceProcessDataInstance,
-  });
-
-  Widget build(BuildContext context) {
-    List<ProcessData> processDataList = dataScreenData.processData;
-
-    if (processDataList.isEmpty) {
-      return Text("The list of processes is empty ");
-    } else {
-      return ListView.builder(
-        itemCount: processDataList.length,
-        itemBuilder: (context, index) {
-          return ProcessCard(
-            processIndex: index,
-            processData: processDataList[index],
-            replaceProcessData: funcToReplaceProcessDataInstance,
-          );
-        },
-      );
-    }
-  }
-}
-
-class NumScreenData {
-  int chosenCount;
-  String defaulTextContent;
-
-  NumScreenData({required this.chosenCount, required this.defaulTextContent});
-
-  static NumScreenData initInstance() {
-    return NumScreenData(
-      chosenCount: 0,
-      defaulTextContent:
-          "This Screen contains a slider for choosing the number of processes",
-    );
-  }
-}
-
-class DataScreenData {
-  List<ProcessData> processData;
-  String defaulTextContent;
-
-  DataScreenData({required this.processData, required this.defaulTextContent});
-
-  static DataScreenData initInstance() {
-    return DataScreenData(
-      processData: [],
-      defaulTextContent: "This Screen contains sliders for choosing AT and BT of chosen processes",
-    );
-  }
-
-  static List<ProcessData> listOfInitProcessData(int chosenCount) {
-    List<ProcessData> result = [];
-    for (int x = 0; x < chosenCount; x = x + 1) {
-      ProcessData tempInstance = ProcessData.initInstance();
-      tempInstance.processId = x;
-      result.add(tempInstance);
-    }
-
-    return result;
-  }
-}
+// ─────────────────────────────────────────────
+// Models
+// ─────────────────────────────────────────────
 
 class ProcessData {
   int processId;
@@ -690,136 +31,777 @@ class ProcessData {
   int burstTime;
 
   ProcessData({
+    required this.processId,
     required this.arrivalTime,
     required this.burstTime,
-    required this.processId,
   });
 
-  static ProcessData initInstance() {
-    return ProcessData(arrivalTime: 0, burstTime: 0, processId: 0);
-  }
+  factory ProcessData.init(int id) =>
+      ProcessData(processId: id, arrivalTime: 0, burstTime: 1);
 }
 
-class SelectionScreenData {
-  String algoString;
-  String defaulTextContent;
+class GanttData {
+  final List<int> ganttList; // processId per time unit (-1 = idle)
+  final List<int> uniqueProcessIds;
 
-  SelectionScreenData({
-    required this.algoString,
-    required this.defaulTextContent,
-  });
-
-  static SelectionScreenData initInstance() {
-    return SelectionScreenData(
-      algoString: "FCFS",
-      defaulTextContent: "This Screen contains dropdowns for selection of scheduling algorithm",
-    );
-  }
+  GanttData({required this.ganttList, required this.uniqueProcessIds});
 }
 
-class ResultScreenData {
-  List<ProcessData> genntData;
-  String algoString;
-  String defaulTextContent;
+// ─────────────────────────────────────────────
+// Main Screen (top-level navigator)
+// ─────────────────────────────────────────────
 
-  ResultScreenData({
-    required this.genntData,
-    required this.defaulTextContent,
-    required this.algoString,
-  });
+class MainScreen extends StatefulWidget {
+  const MainScreen({super.key});
 
-  static ResultScreenData initInstance() {
-    return ResultScreenData(
-      genntData: [],
-      algoString: "FCFS",
-      defaulTextContent:
-          "This Screen contains Gennt chart corresponding to data and algo",
-    );
-  }
+  @override
+  State<MainScreen> createState() => _MainScreenState();
 }
 
-class ProcessLine extends StatelessWidget {
-  final List<int> genttList;
-  final int scale;
+class _MainScreenState extends State<MainScreen> {
+  // "input" | "result"
+  String current = "input";
 
-  ProcessLine({required this.genttList, required this.scale});
+  List<ProcessData> processes = [];
+  String selectedAlgo = "FCFS";
 
+  void goToResult(List<ProcessData> data, String algo) {
+    setState(() {
+      processes = List.from(data);
+      selectedAlgo = algo;
+      current = "result";
+    });
+  }
+
+  void restart() {
+    setState(() {
+      current = "input";
+      processes = [];
+      selectedAlgo = "FCFS";
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    List<Container> listOfContainers = [];
-
-    for (int index = 0; index < genttList.length; index++) {
-      Container tempContainer = Container(
-        //height: 40,
-        width: 1.0 * scale,
-        color: GenttChart.colorMapForIds[genttList[index]],
+    if (current == "result") {
+      return ResultScreen(
+        processes: processes,
+        algo: selectedAlgo,
+        onRestart: restart,
       );
-      listOfContainers.add(tempContainer);
     }
-
-    return Container(height: 10, child: Row(children: listOfContainers));
+    return InputFlow(onFinish: goToResult);
   }
 }
 
-class TimeLine extends StatelessWidget {
-  final int maxBT;
-  final int scale;
+// ─────────────────────────────────────────────
+// Input Flow (Num → Data → Selection)
+// ─────────────────────────────────────────────
 
-  TimeLine({required this.maxBT, required this.scale});
+class InputFlow extends StatefulWidget {
+  final void Function(List<ProcessData>, String) onFinish;
 
-  Widget build(BuildContext context) {
-    List<Container> listOfContainers = [];
+  const InputFlow({super.key, required this.onFinish});
 
-    for (int index = 0; index < maxBT; index++) {
-      Container tempContainer = Container(
-        //height: 10,
-        width: 1.0 * scale,
-        color: index % 2 == 0 ? Colors.black : Colors.grey,
+  @override
+  State<InputFlow> createState() => _InputFlowState();
+}
+
+class _InputFlowState extends State<InputFlow> {
+  // "num" | "data" | "selection"
+  String step = "num";
+
+  int processCount = 3;
+  List<ProcessData> processes = [];
+  String selectedAlgo = "FCFS";
+
+  void goToData() {
+    setState(() {
+      processes = List.generate(
+        processCount,
+        (i) => ProcessData.init(i),
       );
-      listOfContainers.add(tempContainer);
-    }
-
-    return Container(height: 10, child: Row(children: listOfContainers));
+      step = "data";
+    });
   }
-}
 
-class GenttChartLegend extends StatelessWidget{
-  
- final List<int> uniqueProcessIds ;
-  GenttChartLegend( { required this.uniqueProcessIds } );
-  
-    Widget build(BuildContext context) {
-      
-    uniqueProcessIds.sort();
-    List<Row> listOfRows = [] ;  
-    for (int index = 0; index < uniqueProcessIds.length ; index++) {
-      Row tempRow = Row( children : [Text("P-${uniqueProcessIds[index]}"), Container( height : 10, width : 20, color : GenttChart.colorMapForIds[ uniqueProcessIds[index] ] ) ] );
-      
-      listOfRows.add( tempRow );
-    }
-      
-      return Card( child : Column( children : listOfRows ) );
-    }
-}
+  void goToSelection() {
+    setState(() => step = "selection");
+  }
 
-class GenttChart extends StatelessWidget {
-  final GenttData genttData;
+  void finish() {
+    widget.onFinish(processes, selectedAlgo);
+  }
 
-  GenttChart({required this.genttData});
+  void updateProcess(int index, int at, int bt) {
+    setState(() {
+      processes[index] = ProcessData(
+        processId: index,
+        arrivalTime: at,
+        burstTime: bt,
+      );
+    });
+  }
 
+  @override
   Widget build(BuildContext context) {
-    int scale = 10;
-    int maxBT = genttData.genttList.length;
+    switch (step) {
+      case "data":
+        return DataScreen(
+          processes: processes,
+          onUpdate: updateProcess,
+          onNext: goToSelection,
+        );
+      case "selection":
+        return SelectionScreen(
+          selectedAlgo: selectedAlgo,
+          onAlgoChanged: (v) => setState(() => selectedAlgo = v),
+          onNext: finish,
+        );
+      default:
+        return NumScreen(
+          count: processCount,
+          onCountChanged: (v) => setState(() => processCount = v),
+          onNext: goToData,
+        );
+    }
+  }
+}
 
-    return Column(
-      children: [
-        ProcessLine(genttList: genttData.genttList, scale: scale),
-        TimeLine(maxBT: maxBT, scale: scale),
-      ],
+// ─────────────────────────────────────────────
+// Num Screen
+// ─────────────────────────────────────────────
+
+class NumScreen extends StatelessWidget {
+  final int count;
+  final ValueChanged<int> onCountChanged;
+  final VoidCallback onNext;
+
+  const NumScreen({
+    super.key,
+    required this.count,
+    required this.onCountChanged,
+    required this.onNext,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Number of Processes")),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              "$count",
+              style: Theme.of(context).textTheme.displayMedium,
+            ),
+            const SizedBox(height: 16),
+            Slider(
+              value: count.toDouble(),
+              min: 1,
+              max: 10,
+              divisions: 9,
+              label: count.toString(),
+              onChanged: (v) => onCountChanged(v.round()),
+            ),
+            const SizedBox(height: 24),
+            FilledButton.icon(
+              onPressed: onNext,
+              icon: const Icon(Icons.arrow_forward),
+              label: const Text("Next"),
+            ),
+          ],
+        ),
+      ),
     );
-    /*return Text( "this widget displays the GenttChart produced using list of processes and algoString " );*/
+  }
+}
+
+// ─────────────────────────────────────────────
+// Data Screen
+// ─────────────────────────────────────────────
+
+class DataScreen extends StatelessWidget {
+  final List<ProcessData> processes;
+  final void Function(int index, int at, int bt) onUpdate;
+  final VoidCallback onNext;
+
+  const DataScreen({
+    super.key,
+    required this.processes,
+    required this.onUpdate,
+    required this.onNext,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Process Data (AT / BT)"),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: FilledButton.icon(
+              onPressed: onNext,
+              icon: const Icon(Icons.arrow_forward),
+              label: const Text("Confirm"),
+            ),
+          ),
+        ],
+      ),
+      body: ListView.builder(
+        padding: const EdgeInsets.all(12),
+        itemCount: processes.length,
+        itemBuilder: (context, index) {
+          return ProcessCard(
+            process: processes[index],
+            onSave: (at, bt) => onUpdate(index, at, bt),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class ProcessCard extends StatefulWidget {
+  final ProcessData process;
+  final void Function(int at, int bt) onSave;
+
+  const ProcessCard({
+    super.key,
+    required this.process,
+    required this.onSave,
+  });
+
+  @override
+  State<ProcessCard> createState() => _ProcessCardState();
+}
+
+class _ProcessCardState extends State<ProcessCard> {
+  late int at;
+  late int bt;
+
+  @override
+  void initState() {
+    super.initState();
+    at = widget.process.arrivalTime;
+    bt = widget.process.burstTime;
   }
 
-  static Map<int, Color> colorMapForIds = {
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 6),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(
+                  "P${widget.process.processId}",
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const Spacer(),
+                IconButton.filled(
+                  icon: const Icon(Icons.check),
+                  onPressed: () => widget.onSave(at, bt),
+                  tooltip: "Save values",
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text("Arrival Time: $at"),
+            Slider(
+              value: at.toDouble(),
+              min: 0,
+              max: 20,
+              divisions: 20,
+              label: at.toString(),
+              onChanged: (v) => setState(() => at = v.round()),
+            ),
+            Text("Burst Time: $bt"),
+            Slider(
+              value: bt.toDouble(),
+              min: 1,
+              max: 20,
+              divisions: 19,
+              label: bt.toString(),
+              onChanged: (v) => setState(() => bt = v.round()),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────
+// Selection Screen
+// ─────────────────────────────────────────────
+
+class SelectionScreen extends StatelessWidget {
+  final String selectedAlgo;
+  final ValueChanged<String> onAlgoChanged;
+  final VoidCallback onNext;
+
+  const SelectionScreen({
+    super.key,
+    required this.selectedAlgo,
+    required this.onAlgoChanged,
+    required this.onNext,
+  });
+
+  static const algos = [
+    "FCFS",
+    "SJF",
+    "SRTF",
+    "LJF",
+    "HRRN",
+    "RoundRobin (QT=2)",
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Select Algorithm")),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            DropdownMenu<String>(
+              initialSelection: selectedAlgo,
+              onSelected: (v) {
+                if (v != null) onAlgoChanged(v);
+              },
+              dropdownMenuEntries: algos
+                  .map((a) => DropdownMenuEntry(value: a, label: a))
+                  .toList(),
+            ),
+            const SizedBox(height: 32),
+            FilledButton.icon(
+              onPressed: onNext,
+              icon: const Icon(Icons.play_arrow),
+              label: const Text("Run Simulation"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────
+// Result Screen + Algorithms
+// ─────────────────────────────────────────────
+// ─────────────────────────────────────────────
+// Result Screen + All Algorithms
+// ─────────────────────────────────────────────
+
+class ResultScreen extends StatelessWidget {
+  final List<ProcessData> processes;
+  final String algo;
+  final VoidCallback onRestart;
+
+  const ResultScreen({
+    super.key,
+    required this.processes,
+    required this.algo,
+    required this.onRestart,
+  });
+
+  static GanttData? run(String algo, List<ProcessData> data) {
+    switch (algo) {
+      case "FCFS":
+        return fcfs(data);
+      case "SJF":
+        return sjf(data);
+      case "SRTF":
+        return srtf(data);
+      case "LJF":
+        return ljf(data);
+      case "HRRN":
+        return hrrn(data);
+      case "RoundRobin (QT=2)":
+        return roundRobin(data, quantum: 2);
+      default:
+        return null;
+    }
+  }
+
+  // ─── Helpers ────────────────────────────────
+
+  static List<ProcessData> _sortedByArrival(List<ProcessData> original) {
+    final list = List<ProcessData>.from(original);
+    list.sort((a, b) {
+      final cmp = a.arrivalTime.compareTo(b.arrivalTime);
+      return cmp != 0 ? cmp : a.processId.compareTo(b.processId);
+    });
+    return list;
+  }
+
+  // ─── FCFS ───────────────────────────────────
+
+  static GanttData fcfs(List<ProcessData> original) {
+    if (original.isEmpty) {
+      return GanttData(ganttList: [], uniqueProcessIds: []);
+    }
+
+    final procs = _sortedByArrival(original);
+    final gantt = <int>[];
+    int currentTime = 0;
+    final unique = <int>{};
+
+    for (final p in procs) {
+      if (currentTime < p.arrivalTime) {
+        final idle = p.arrivalTime - currentTime;
+        for (int i = 0; i < idle; i++) {gantt.add(-1);}
+        currentTime = p.arrivalTime;
+      }
+
+      for (int i = 0; i < p.burstTime; i++) {
+        gantt.add(p.processId);
+      }
+      currentTime += p.burstTime;
+      unique.add(p.processId);
+    }
+
+    return GanttData(
+      ganttList: gantt,
+      uniqueProcessIds: unique.toList()..sort(),
+    );
+  }
+
+  // ─── SJF (Non-preemptive) ───────────────────
+
+  static GanttData sjf(List<ProcessData> original) {
+    if (original.isEmpty) {
+      return GanttData(ganttList: [], uniqueProcessIds: []);
+    }
+
+    final remaining = List<ProcessData>.from(original);
+    final gantt = <int>[];
+    int currentTime = 0;
+    final unique = <int>{};
+
+    while (remaining.isNotEmpty) {
+      // Processes that have arrived by currentTime
+      final ready = remaining
+          .where((p) => p.arrivalTime <= currentTime)
+          .toList();
+
+      if (ready.isEmpty) {
+        // Jump to next arrival
+        final nextArrival =
+            remaining.map((p) => p.arrivalTime).reduce((a, b) => a < b ? a : b);
+        final idle = nextArrival - currentTime;
+        for (int i = 0; i < idle; i++) {gantt.add(-1);}
+        currentTime = nextArrival;
+        continue;
+      }
+
+      // Pick shortest burst time (tie → lowest PID)
+      ready.sort((a, b) {
+        final cmp = a.burstTime.compareTo(b.burstTime);
+        return cmp != 0 ? cmp : a.processId.compareTo(b.processId);
+      });
+      final chosen = ready.first;
+
+      for (int i = 0; i < chosen.burstTime; i++) {
+        gantt.add(chosen.processId);
+      }
+      currentTime += chosen.burstTime;
+      unique.add(chosen.processId);
+      remaining.remove(chosen);
+    }
+
+    return GanttData(
+      ganttList: gantt,
+      uniqueProcessIds: unique.toList()..sort(),
+    );
+  }
+
+  // ─── SRTF (Preemptive SJF) ──────────────────
+
+  static GanttData srtf(List<ProcessData> original) {
+    if (original.isEmpty) {
+      return GanttData(ganttList: [], uniqueProcessIds: []);
+    }
+
+    // remaining burst times
+    final rem = <int, int>{};
+    for (final p in original) {
+      rem[p.processId] = p.burstTime;
+    }
+
+    final gantt = <int>[];
+    int currentTime = 0;
+    final unique = <int>{};
+    final totalBurst = original.fold<int>(0, (s, p) => s + p.burstTime);
+
+    while (gantt.length < totalBurst || rem.values.any((v) => v > 0)) {
+      // Ready processes at currentTime
+      final ready = original
+          .where((p) =>
+              p.arrivalTime <= currentTime && (rem[p.processId] ?? 0) > 0)
+          .toList();
+
+      if (ready.isEmpty) {
+        // Find next arrival of any unfinished process
+        final future = original
+            .where((p) =>
+                p.arrivalTime > currentTime && (rem[p.processId] ?? 0) > 0)
+            .map((p) => p.arrivalTime)
+            .toList();
+        if (future.isEmpty) break;
+
+        final next = future.reduce((a, b) => a < b ? a : b);
+        final idle = next - currentTime;
+        for (int i = 0; i < idle; i++){ gantt.add(-1);}
+        currentTime = next;
+        continue;
+      }
+
+      // Shortest remaining time (tie → lowest PID)
+      ready.sort((a, b) {
+        final ra = rem[a.processId]!;
+        final rb = rem[b.processId]!;
+        final cmp = ra.compareTo(rb);
+        return cmp != 0 ? cmp : a.processId.compareTo(b.processId);
+      });
+      final chosen = ready.first;
+      final pid = chosen.processId;
+
+      gantt.add(pid);
+      rem[pid] = rem[pid]! - 1;
+      unique.add(pid);
+      currentTime++;
+    }
+
+    return GanttData(
+      ganttList: gantt,
+      uniqueProcessIds: unique.toList()..sort(),
+    );
+  }
+
+  // ─── LJF (Non-preemptive) ───────────────────
+
+  static GanttData ljf(List<ProcessData> original) {
+    if (original.isEmpty) {
+      return GanttData(ganttList: [], uniqueProcessIds: []);
+    }
+
+    final remaining = List<ProcessData>.from(original);
+    final gantt = <int>[];
+    int currentTime = 0;
+    final unique = <int>{};
+
+    while (remaining.isNotEmpty) {
+      final ready = remaining
+          .where((p) => p.arrivalTime <= currentTime)
+          .toList();
+
+      if (ready.isEmpty) {
+        final nextArrival =
+            remaining.map((p) => p.arrivalTime).reduce((a, b) => a < b ? a : b);
+        final idle = nextArrival - currentTime;
+        for (int i = 0; i < idle; i++) {gantt.add(-1);}
+        currentTime = nextArrival;
+        continue;
+      }
+
+      // Longest burst time (tie → lowest PID)
+      ready.sort((a, b) {
+        final cmp = b.burstTime.compareTo(a.burstTime); // reverse
+        return cmp != 0 ? cmp : a.processId.compareTo(b.processId);
+      });
+      final chosen = ready.first;
+
+      for (int i = 0; i < chosen.burstTime; i++) {
+        gantt.add(chosen.processId);
+      }
+      currentTime += chosen.burstTime;
+      unique.add(chosen.processId);
+      remaining.remove(chosen);
+    }
+
+    return GanttData(
+      ganttList: gantt,
+      uniqueProcessIds: unique.toList()..sort(),
+    );
+  }
+
+  // ─── HRRN (Highest Response Ratio Next) ─────
+
+  static GanttData hrrn(List<ProcessData> original) {
+    if (original.isEmpty) {
+      return GanttData(ganttList: [], uniqueProcessIds: []);
+    }
+
+    final remaining = List<ProcessData>.from(original);
+    final gantt = <int>[];
+    int currentTime = 0;
+    final unique = <int>{};
+
+    while (remaining.isNotEmpty) {
+      final ready = remaining
+          .where((p) => p.arrivalTime <= currentTime)
+          .toList();
+
+      if (ready.isEmpty) {
+        final nextArrival =
+            remaining.map((p) => p.arrivalTime).reduce((a, b) => a < b ? a : b);
+        final idle = nextArrival - currentTime;
+        for (int i = 0; i < idle; i++) {gantt.add(-1);}
+        currentTime = nextArrival;
+        continue;
+      }
+
+      // Response Ratio = (Waiting Time + Burst Time) / Burst Time
+      // Waiting Time = currentTime - arrivalTime
+      ready.sort((a, b) {
+        final waitA = currentTime - a.arrivalTime;
+        final waitB = currentTime - b.arrivalTime;
+        final rrA = (waitA + a.burstTime) / a.burstTime;
+        final rrB = (waitB + b.burstTime) / b.burstTime;
+        final cmp = rrB.compareTo(rrA); // highest first
+        return cmp != 0 ? cmp : a.processId.compareTo(b.processId);
+      });
+      final chosen = ready.first;
+
+      for (int i = 0; i < chosen.burstTime; i++) {
+        gantt.add(chosen.processId);
+      }
+      currentTime += chosen.burstTime;
+      unique.add(chosen.processId);
+      remaining.remove(chosen);
+    }
+
+    return GanttData(
+      ganttList: gantt,
+      uniqueProcessIds: unique.toList()..sort(),
+    );
+  }
+
+  // ─── Round Robin (Quantum = 2) ──────────────
+
+  static GanttData roundRobin(List<ProcessData> original, {int quantum = 2}) {
+    if (original.isEmpty) {
+      return GanttData(ganttList: [], uniqueProcessIds: []);
+    }
+
+    // remaining burst
+    final rem = <int, int>{};
+    for (final p in original) {
+      rem[p.processId] = p.burstTime;
+    }
+
+    final gantt = <int>[];
+    int currentTime = 0;
+    final unique = <int>{};
+
+    // Ready queue (FIFO)
+    final queue = <int>[]; // process IDs
+    final arrived = <int>{};
+
+    // Helper to add newly arrived processes
+    void addArrived() {
+      for (final p in original) {
+        if (p.arrivalTime <= currentTime &&
+            !arrived.contains(p.processId) &&
+            (rem[p.processId] ?? 0) > 0) {
+          queue.add(p.processId);
+          arrived.add(p.processId);
+        }
+      }
+    }
+
+    addArrived();
+
+    while (rem.values.any((v) => v > 0)) {
+      if (queue.isEmpty) {
+        // Jump to next arrival
+        final future = original
+            .where((p) =>
+                p.arrivalTime > currentTime && (rem[p.processId] ?? 0) > 0)
+            .map((p) => p.arrivalTime)
+            .toList();
+        if (future.isEmpty) break;
+
+        final next = future.reduce((a, b) => a < b ? a : b);
+        final idle = next - currentTime;
+        for (int i = 0; i < idle; i++) {gantt.add(-1);}
+        currentTime = next;
+        addArrived();
+        continue;
+      }
+
+      final pid = queue.removeAt(0);
+      final runTime = (rem[pid]! < quantum) ? rem[pid]! : quantum;
+
+      for (int i = 0; i < runTime; i++) {
+        gantt.add(pid);
+        currentTime++;
+        rem[pid] = rem[pid]! - 1;
+        unique.add(pid);
+
+        // Check for new arrivals during this quantum
+        addArrived();
+      }
+
+      // If still has remaining time → put back at end of queue
+      if (rem[pid]! > 0) {
+        queue.add(pid);
+      }
+    }
+
+    return GanttData(
+      ganttList: gantt,
+      uniqueProcessIds: unique.toList()..sort(),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final result = run(algo, processes);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Result – $algo"),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: FilledButton.icon(
+              onPressed: onRestart,
+              icon: const Icon(Icons.restart_alt),
+              label: const Text("Restart"),
+            ),
+          ),
+        ],
+      ),
+      body: result == null
+          ? const Center(
+              child: Text(
+                "Unknown algorithm.",
+                style: TextStyle(fontSize: 18),
+              ),
+            )
+          : GanttChart(data: result),
+    );
+  }
+}
+// ─────────────────────────────────────────────
+// Gantt Chart UI
+// ─────────────────────────────────────────────
+
+class GanttChart extends StatelessWidget {
+  final GanttData data;
+  static const scale = 18.0;
+
+  static final colorMap = <int, Color>{
+    -1: Colors.grey.shade300, // idle
     0: Colors.blue,
     1: Colors.red,
     2: Colors.green,
@@ -829,7 +811,106 @@ class GenttChart extends StatelessWidget {
     6: Colors.pink,
     7: Colors.cyan,
     8: Colors.orange,
-    9: Colors.yellow,
-    10: Colors.teal,
+    9: Colors.amber,
   };
+
+  const GanttChart({super.key, required this.data});
+
+  @override
+  Widget build(BuildContext context) {
+    final length = data.ganttList.length;
+    if (length == 0) {
+      return const Center(child: Text("No data to display"));
+    }
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Legend
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Wrap(
+                spacing: 16,
+                runSpacing: 8,
+                children: [
+                  ...data.uniqueProcessIds.map((id) {
+                    return Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 20,
+                          height: 14,
+                          color: colorMap[id] ?? Colors.black,
+                        ),
+                        const SizedBox(width: 6),
+                        Text("P$id"),
+                      ],
+                    );
+                  }),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 20,
+                        height: 14,
+                        color: colorMap[-1],
+                      ),
+                      const SizedBox(width: 6),
+                      const Text("Idle"),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // Process bars
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Bars
+                Row(
+                  children: data.ganttList.map((id) {
+                    return Container(
+                      width: scale,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: colorMap[id] ?? Colors.black,
+                        border: Border.all(color: Colors.black12, width: 0.5),
+                      ),
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 4),
+                // Time markers (every unit)
+                Row(
+                  children: List.generate(length + 1, (t) {
+                    return SizedBox(
+                      width: scale,
+                      child: Text(
+                        "$t",
+                        style: const TextStyle(fontSize: 10),
+                        textAlign: TextAlign.center,
+                      ),
+                    );
+                  }),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            "Total time units: $length",
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ],
+      ),
+    );
+  }
 }
