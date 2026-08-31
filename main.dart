@@ -385,7 +385,7 @@ class ResultScreen extends StatelessWidget {
     );
   }
 
-  GenttData firstComeFirstServed(List<ProcessData> receivedGenntData) {
+  static GenttData firstComeFirstServed(List<ProcessData> receivedGenntData) {
     //find maxAT( no.of rows in matrix )
     //find totalBT ( len of Gennt Chart )
     int maxAT = 0;
@@ -448,6 +448,9 @@ class ResultScreen extends StatelessWidget {
     );
     return result;
   }
+  
+  static Map<String, Function> algoMap = { "FCFS" : ResultScreen.firstComeFirstServed };
+  
 }
 
 class GenttData {
@@ -457,6 +460,19 @@ class GenttData {
   GenttData({required this.genttList, required this.uniqueProcessIds});
 }
 
+class DataToResultScreen extends StatelessWidget {
+  final ResultScreenData resultScreenData;
+  DataToResultScreen({required this.resultScreenData});
+
+  Widget build(BuildContext context) {
+    
+    GenttData genttData = (ResultScreen.algoMap[ resultScreenData.algoString ]!)( resultScreenData.genntData ) ;
+    
+    return GenttChart( genttData : genttData );
+    
+  }
+}
+/*
 class DataToResultScreen extends StatelessWidget {
   final ResultScreenData resultScreenData;
   DataToResultScreen({required this.resultScreenData});
@@ -481,6 +497,7 @@ class DataToResultScreen extends StatelessWidget {
     );
   }
 }
+*/
 
 class ProcessCard extends StatefulWidget {
   final ProcessData processData;
