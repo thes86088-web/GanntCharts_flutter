@@ -27,10 +27,7 @@ class _MainScreenState extends State<MainScreen> {
             resultScreenData: savedResultScreenData,
             loadNextScreen: loadInputScreen,
           )
-        : InputScreen(
-            functionToLoadResultScreen:
-                loadResultScreen,
-          ));
+        : InputScreen(functionToLoadResultScreen: loadResultScreen));
   }
 
   void loadInputScreen() {
@@ -169,7 +166,6 @@ class NumScreen extends StatelessWidget {
     );
   }
 }
-
 
 class DataToNumScreen extends StatelessWidget {
   final void Function(int) funcToUpdateProcessCount;
@@ -390,14 +386,13 @@ class ResultScreen extends StatelessWidget {
   }
 
   GenttData firstComeFirstServed(List<ProcessData> receivedGenntData) {
-
     //find maxAT( no.of rows in matrix )
     //find totalBT ( len of Gennt Chart )
     int maxAT = 0;
     int totalBT = 0;
-    
-    List<int> uniqueProcessIds = [] ;
-    
+
+    List<int> uniqueProcessIds = [];
+
     for (int i = 0; i < receivedGenntData.length; i++) {
       ProcessData tempData = receivedGenntData[i];
       if (tempData.arrivalTime > maxAT) {
@@ -412,57 +407,54 @@ class ResultScreen extends StatelessWidget {
     for (int j = 0; j < receivedGenntData.length; j++) {
       ProcessData tempData = receivedGenntData[j];
 
-      (processMatrix[tempData.arrivalTime])[ tempData.processId ] = tempData;
+      (processMatrix[tempData.arrivalTime])[tempData.processId] = tempData;
     }
-    
-    for( int k = 0; k<maxAT; k++ ){
-      if( processMatrix[k].isNotEmpty ){
+
+    for (int k = 0; k < maxAT; k++) {
+      if (processMatrix[k].isNotEmpty) {
         uniqueProcessIds.add(k);
       }
     }
 
-    List<int> genttList = [] ;
+    List<int> genttList = [];
     //start a loop on aT till maxAT
     //int latestAT = 0;
     for (int aT = 0; aT <= totalBT; aT++) {
       if (processMatrix[aT].isNotEmpty) {
         if (processMatrix[aT].length == 1) {
-          ProcessData currProcess = (processMatrix[aT])[ 0 ] ; 
-          int duration = currProcess.burstTime ;
-          
-          for( int d = 0; d<duration; d++ ){
-            genttList.add( currProcess.processId );
+          ProcessData currProcess = (processMatrix[aT])[0];
+          int duration = currProcess.burstTime;
+
+          for (int d = 0; d < duration; d++) {
+            genttList.add(currProcess.processId);
           }
-        }
-        else{
-          int numOfProcessWithSameId = processMatrix[aT].length ;
-          for( int pIndex=0; pIndex<numOfProcessWithSameId; pIndex++ ){
-            
-            ProcessData currProcess = (processMatrix[aT])[ pIndex ] ; 
-            int duration = currProcess.burstTime ;
-          
-            for( int d = 0; d<duration; d++ ){
-              genttList.add( currProcess.processId );
+        } else {
+          int numOfProcessWithSameId = processMatrix[aT].length;
+          for (int pIndex = 0; pIndex < numOfProcessWithSameId; pIndex++) {
+            ProcessData currProcess = (processMatrix[aT])[pIndex];
+            int duration = currProcess.burstTime;
+
+            for (int d = 0; d < duration; d++) {
+              genttList.add(currProcess.processId);
             }
-            
           }
-          
-          
         }
       }
     }
-    
-    GenttData result = GenttData( genttList : genttList, uniqueProcessIds : uniqueProcessIds );
+
+    GenttData result = GenttData(
+      genttList: genttList,
+      uniqueProcessIds: uniqueProcessIds,
+    );
     return result;
   }
 }
 
-class GenttData{
+class GenttData {
   List<int> genttList;
   List<int> uniqueProcessIds;
-  
-  GenttData( { required this.genttList, required this.uniqueProcessIds } );
-  
+
+  GenttData({required this.genttList, required this.uniqueProcessIds});
 }
 
 class DataToResultScreen extends StatelessWidget {
@@ -714,4 +706,100 @@ class ResultScreenData {
           "This Screen contains Gennt chart corresponding to data and algo",
     );
   }
+}
+
+class ProcessLine extends StatelessWidget {
+  final List<int> genttList;
+  final int scale;
+
+  ProcessLine({required this.genttList, required this.scale});
+
+  Widget build(BuildContext context) {
+    List<Container> listOfContainers = [];
+
+    for (int index = 0; index < genttList.length; index++) {
+      Container tempContainer = Container(
+        //height: 40,
+        width: 1.0 * scale,
+        color: GenttChart.colorMapForIds[genttList[index]],
+      );
+      listOfContainers.add(tempContainer);
+    }
+
+    return Container(height: 10, child: Row(children: listOfContainers));
+  }
+}
+
+class TimeLine extends StatelessWidget {
+  final int maxBT;
+  final int scale;
+
+  TimeLine({required this.maxBT, required this.scale});
+
+  Widget build(BuildContext context) {
+    List<Container> listOfContainers = [];
+
+    for (int index = 0; index < maxBT; index++) {
+      Container tempContainer = Container(
+        //height: 10,
+        width: 1.0 * scale,
+        color: index % 2 == 0 ? Colors.black : Colors.grey,
+      );
+      listOfContainers.add(tempContainer);
+    }
+
+    return Container(height: 10, child: Row(children: listOfContainers));
+  }
+}
+
+class GenttChartLegend extends StatelessWidget{
+  
+ final List<int> uniqueProcessIds ;
+  GenttChartLegend( { required this.uniqueProcessIds } );
+  
+    Widget build(BuildContext context) {
+      
+    uniqueProcessIds.sort();
+    List<Row> listOfRows = [] ;  
+    for (int index = 0; index < uniqueProcessIds.length ; index++) {
+      Row tempRow = Row( children : [Text("P-${uniqueProcessIds[index]}"), Container( height : 10, width : 20, color : GenttChart.colorMapForIds[ uniqueProcessIds[index] ] ) ] );
+      
+      listOfRows.add( tempRow );
+    }
+      
+      return Card( child : Column( children : listOfRows ) );
+    }
+}
+
+class GenttChart extends StatelessWidget {
+  final GenttData genttData;
+
+  GenttChart({required this.genttData});
+
+  Widget build(BuildContext context) {
+    int scale = 10;
+    int maxBT = genttData.genttList.length;
+
+    return Column(
+      children: [
+        ProcessLine(genttList: genttData.genttList, scale: scale),
+        TimeLine(maxBT: maxBT, scale: scale),
+      ],
+    );
+    /*return Text( "this widget displays the GenttChart produced using list of processes and algoString " );*/
+  }
+
+  static Map<int, Color> colorMapForIds = {
+    0: Colors.blue,
+    1: Colors.red,
+    2: Colors.green,
+    3: Colors.purple,
+    4: Colors.brown,
+    5: Colors.lime,
+    6: Colors.pink,
+    7: Colors.cyan,
+    8: Colors.orange,
+    9: Colors.yellow,
+    10: Colors.teal,
+  };
 }
