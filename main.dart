@@ -29,7 +29,7 @@ class _MainScreenState extends State<MainScreen> {
           )
         : InputScreen(
             functionToLoadResultScreen:
-                loadResultScreen /*(){loadResultScreen( receivedGenntData );}*/,
+                loadResultScreen,
           ));
   }
 
@@ -158,32 +158,10 @@ class NumScreen extends StatelessWidget {
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              /*Text(numScreenData.defaulTextContent),*/
               DataToNumScreen(
                 funcToUpdateProcessCount: funcToUpdateProcessCount,
                 funcToLoadNextPage: loadNextScreen,
               ),
-              /*
-              ElevatedButton(
-                child: SizedBox(
-                  width: 100,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [Text("Confirm"), Icon(Icons.arrow_forward)],
-                  ),
-                ),
-                onPressed: () {
-                  //funcToUpdateProcessCount( tempValue );
-                  loadNextScreen();
-                  /*
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (ctx) => DataScreen()),
-                  );
-                  */
-                },
-              ),
-              */
             ],
           ),
         ],
@@ -192,16 +170,10 @@ class NumScreen extends StatelessWidget {
   }
 }
 
-/*
-class IntWrapper {
-  int value = 0;
-}
-*/
 
 class DataToNumScreen extends StatelessWidget {
   final void Function(int) funcToUpdateProcessCount;
   final void Function() funcToLoadNextPage;
-  //final IntWrapper intWrapper = IntWrapper();
 
   DataToNumScreen({
     required this.funcToUpdateProcessCount,
@@ -243,8 +215,6 @@ class _WidgetToContainSliderState extends State<WidgetToContainSlider> {
               divisions: 10,
               value: 1.0 * tempValue,
               onChanged: (sliderValue) {
-                //int newValue = sliderValue.ceil();
-                //tempValue = newValue;
                 setState(() {
                   tempValue = sliderValue.floor();
                 });
@@ -258,12 +228,6 @@ class _WidgetToContainSliderState extends State<WidgetToContainSlider> {
           onPressed: () {
             (widget.funcToUpdateProcessCount)(tempValue);
             (widget.funcToLoadNextPage)();
-            /*
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (ctx) => DataScreen()),
-                  );
-                  */
           },
         ),
       ],
@@ -302,12 +266,6 @@ class DataScreen extends StatelessWidget {
             ),
             onPressed: () {
               loadNextScreen();
-              /*
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (ctx) => SelectionScreen()),
-                  );
-                  */
             },
           ),
         ],
@@ -316,9 +274,6 @@ class DataScreen extends StatelessWidget {
         dataScreenData: dataScreenData,
         funcToReplaceProcessDataInstance: funcToReplaceProcessDataInstance,
       ),
-      //ProcessCard( index : 13 ),
-      // ],
-      //),
     );
   }
 }
@@ -343,7 +298,6 @@ class SelectionScreen extends StatelessWidget {
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              //Text(selectionScreenData.defaulTextContent),
               SelectionScreenDropDown(
                 funcToUpdateAlgoString: funcToUpdateAlgoString,
               ),
@@ -357,12 +311,6 @@ class SelectionScreen extends StatelessWidget {
                 ),
                 onPressed: () {
                   loadNextScreen();
-                  /*
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (ctx) => ResultScreen()),
-                  );
-                  */
                 },
               ),
             ],
@@ -391,16 +339,12 @@ class _SelectionScreenDropDownState extends State<SelectionScreenDropDown> {
     "HRRN",
     "RoundRobin( QT = 2 )",
   ];
-  //String defaultValue = "choose an Algorithm" ;
-  //String chosenValue = "" ;
-  //String chosenValue = "choose an Algorithm" ;
   String chosenValue = "FCFS";
 
   Widget build(BuildContext context) {
     return DropdownMenu<String>(
       initialSelection: availableAlgo.first,
       onSelected: (String? value) {
-        // This is called when the user selects an item.
         setState(() {
           chosenValue = value!;
         });
@@ -413,16 +357,6 @@ class _SelectionScreenDropDownState extends State<SelectionScreenDropDown> {
           )
           .toList(),
     );
-    /*return DropdownButton<String>( 
-      value : chosenValue,
-      icon: const Icon(Icons.arrow_downward),
-      onChanged : ( String? newAlgo ){ setState( (){ chosenValue = newAlgo! /*?? defaultValue*/ ; } ); },
-      
-      items : availableAlgo.map<DropdownMenuItem<String>>((String value) {
-        return DropdownMenuItem<String>(value: value, child: Text(value));
-      }).toList(),  );
-  }
-  */
   }
 }
 
@@ -447,30 +381,23 @@ class ResultScreen extends StatelessWidget {
             ),
             onPressed: () {
               loadNextScreen();
-              /*
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (ctx) => NumScreen()),
-                  );
-                  */
             },
           ),
         ],
       ),
       body: DataToResultScreen(resultScreenData: resultScreenData),
-
-      //Text(resultScreenData.defaulTextContent),
     );
   }
 
-  //List<ProcessData> firstComeFirstServed(List<ProcessData> receivedGenntData) {
-  List<int> firstComeFirstServed(List<ProcessData> receivedGenntData) {
-    //List<ProcessData> tempProcessDataList = [];
+  GenttData firstComeFirstServed(List<ProcessData> receivedGenntData) {
 
     //find maxAT( no.of rows in matrix )
     //find totalBT ( len of Gennt Chart )
     int maxAT = 0;
     int totalBT = 0;
+    
+    List<int> uniqueProcessIds = [] ;
+    
     for (int i = 0; i < receivedGenntData.length; i++) {
       ProcessData tempData = receivedGenntData[i];
       if (tempData.arrivalTime > maxAT) {
@@ -485,11 +412,15 @@ class ResultScreen extends StatelessWidget {
     for (int j = 0; j < receivedGenntData.length; j++) {
       ProcessData tempData = receivedGenntData[j];
 
-      //processMatrix[tempData.arrivalTime].add(tempData);
       (processMatrix[tempData.arrivalTime])[ tempData.processId ] = tempData;
     }
+    
+    for( int k = 0; k<maxAT; k++ ){
+      if( processMatrix[k].isNotEmpty ){
+        uniqueProcessIds.add(k);
+      }
+    }
 
-    //List<GenttData> genntList = [];
     List<int> genttList = [] ;
     //start a loop on aT till maxAT
     //int latestAT = 0;
@@ -502,7 +433,6 @@ class ResultScreen extends StatelessWidget {
           for( int d = 0; d<duration; d++ ){
             genttList.add( currProcess.processId );
           }
-          /*genntList.add( GenttData( processId : currProcess.processId, startTime : latestAT, completionTime : latestAT + currProcess.burstTime,  ) );*/
         }
         else{
           int numOfProcessWithSameId = processMatrix[aT].length ;
@@ -521,27 +451,19 @@ class ResultScreen extends StatelessWidget {
         }
       }
     }
-
-    //BoxSort according to AT, use pID when tie
-
-    //return tempProcessDataList;
-    return genttList;
+    
+    GenttData result = GenttData( genttList : genttList, uniqueProcessIds : uniqueProcessIds );
+    return result;
   }
 }
 
-/*
-class GenttData {
-  int processId;
-  int startTime;
-  int completionTime;
-
-  GenttData({
-    required this.processId,
-    required this.startTime,
-    required this.completionTime,
-  });
+class GenttData{
+  List<int> genttList;
+  List<int> uniqueProcessIds;
+  
+  GenttData( { required this.genttList, required this.uniqueProcessIds } );
+  
 }
-*/
 
 class DataToResultScreen extends StatelessWidget {
   final ResultScreenData resultScreenData;
@@ -565,24 +487,8 @@ class DataToResultScreen extends StatelessWidget {
         );
       },
     );
-    /*Text(
-      "This Screen will display Gennt Chart for ${resultScreenData.algoString} on chosen ${resultScreenData.genntData.length} processes",
-    );*/
   }
 }
-
-/*
-class ProcessCard extends StatelessWidget{
-  
-  final int index;
-  ProcessCard({ required this.index });
-  
-  Widget build( BuildContext context ){
-    return Card( child : ListTile( title : Text("P-${index}") )  );
-  }
-  
-}
-*/
 
 class ProcessCard extends StatefulWidget {
   final ProcessData processData;
@@ -623,10 +529,6 @@ class _ProcessCardState extends State<ProcessCard> {
         title: Text("P-${widget.processData.processId}"),
         subtitle: Row(
           children: [
-            /*
-                Text( "AT Slot" ),
-                Text( "BT Slot" )
-                */
             SliderContainer(
               currValue: tempArrivalTime,
               label: "AT",
@@ -695,19 +597,13 @@ class DataToDataScreen extends StatelessWidget {
     required int newBurstTime,
   })
   funcToReplaceProcessDataInstance;
-  //final List<ProcessData>? processDataList;
   DataToDataScreen({
-    required this.dataScreenData /*required this.processDataList*/,
+    required this.dataScreenData,
     required this.funcToReplaceProcessDataInstance,
   });
 
   Widget build(BuildContext context) {
     List<ProcessData> processDataList = dataScreenData.processData;
-
-    /*if( processDataList == null ){
-      return  Text( "No processes received" );
-    }
-    */
 
     if (processDataList.isEmpty) {
       return Text("The list of processes is empty ");
@@ -767,9 +663,6 @@ class DataScreenData {
 }
 
 class ProcessData {
-  //static int processCount = 0;
-
-  //final int processId = processCount++;
   int processId;
   int arrivalTime;
   int burstTime;
