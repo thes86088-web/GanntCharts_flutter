@@ -434,42 +434,114 @@ class ResultScreen extends StatelessWidget {
 
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("ResultScreen"), actions : [ ElevatedButton(
-                child: SizedBox(
-                  width: 100,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [Text("Restart"), Icon(Icons.restart_alt)],
-                  ),
-                ),
-                onPressed: () {
-                  loadNextScreen();
-                  /*
+      appBar: AppBar(
+        title: Text("ResultScreen"),
+        actions: [
+          ElevatedButton(
+            child: SizedBox(
+              width: 100,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [Text("Restart"), Icon(Icons.restart_alt)],
+              ),
+            ),
+            onPressed: () {
+              loadNextScreen();
+              /*
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (ctx) => NumScreen()),
                   );
                   */
-                },
-              ), ]),
-      body:
-          
-              DataToResultScreen(resultScreenData: resultScreenData),
-              //Text(resultScreenData.defaulTextContent),
-              
+            },
+          ),
+        ],
+      ),
+      body: DataToResultScreen(resultScreenData: resultScreenData),
+
+      //Text(resultScreenData.defaulTextContent),
     );
-    
   }
-  
-      List<ProcessData> firstComeFirstServed( List<ProcessData> receivedGenntData ){
-      List<ProcessData> tempProcessDataList = [] ;
-      
-        //BoxSort according to AT, use pID when tie
-        
-      return tempProcessDataList;
+
+  //List<ProcessData> firstComeFirstServed(List<ProcessData> receivedGenntData) {
+  List<int> firstComeFirstServed(List<ProcessData> receivedGenntData) {
+    //List<ProcessData> tempProcessDataList = [];
+
+    //find maxAT( no.of rows in matrix )
+    //find totalBT ( len of Gennt Chart )
+    int maxAT = 0;
+    int totalBT = 0;
+    for (int i = 0; i < receivedGenntData.length; i++) {
+      ProcessData tempData = receivedGenntData[i];
+      if (tempData.arrivalTime > maxAT) {
+        maxAT = tempData.arrivalTime;
+      }
+      totalBT = totalBT + tempData.burstTime;
     }
-  
+
+    List<List<ProcessData>> processMatrix = [];
+
+    //arrange each process in a row corresponding to its AT
+    for (int j = 0; j < receivedGenntData.length; j++) {
+      ProcessData tempData = receivedGenntData[j];
+
+      //processMatrix[tempData.arrivalTime].add(tempData);
+      (processMatrix[tempData.arrivalTime])[ tempData.processId ] = tempData;
+    }
+
+    //List<GenttData> genntList = [];
+    List<int> genttList = [] ;
+    //start a loop on aT till maxAT
+    //int latestAT = 0;
+    for (int aT = 0; aT <= totalBT; aT++) {
+      if (processMatrix[aT].isNotEmpty) {
+        if (processMatrix[aT].length == 1) {
+          ProcessData currProcess = (processMatrix[aT])[ 0 ] ; 
+          int duration = currProcess.burstTime ;
+          
+          for( int d = 0; d<duration; d++ ){
+            genttList.add( currProcess.processId );
+          }
+          /*genntList.add( GenttData( processId : currProcess.processId, startTime : latestAT, completionTime : latestAT + currProcess.burstTime,  ) );*/
+        }
+        else{
+          int numOfProcessWithSameId = processMatrix[aT].length ;
+          for( int pIndex=0; pIndex<numOfProcessWithSameId; pIndex++ ){
+            
+            ProcessData currProcess = (processMatrix[aT])[ pIndex ] ; 
+            int duration = currProcess.burstTime ;
+          
+            for( int d = 0; d<duration; d++ ){
+              genttList.add( currProcess.processId );
+            }
+            
+          }
+          
+          
+        }
+      }
+    }
+
+    //BoxSort according to AT, use pID when tie
+
+    //return tempProcessDataList;
+    return genttList;
+  }
 }
+
+/*
+class GenttData {
+  int processId;
+  int startTime;
+  int completionTime;
+
+  GenttData({
+    required this.processId,
+    required this.startTime,
+    required this.completionTime,
+  });
+}
+*/
 
 class DataToResultScreen extends StatelessWidget {
   final ResultScreenData resultScreenData;
@@ -483,7 +555,7 @@ class DataToResultScreen extends StatelessWidget {
           child: ListTile(
             title: Text("P-${resultScreenData.genntData[index].processId}"),
             subtitle: Column(
-              crossAxisAlignment : CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text("AT : ${resultScreenData.genntData[index].arrivalTime}"),
                 Text("BT : ${resultScreenData.genntData[index].burstTime}"),
